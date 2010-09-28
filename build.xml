@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+
+<project name="SCS Java Full Toolkit" default="jar-core" basedir=".">
+
+<property environment="env"/>
+<!-- Trying to guess the value of IDLPATH_DIR variable -->
+<condition property="idlpath.dir" value="${env.IDLPATH_DIR}" else="${env.OPENBUS_HOME}/idlpath/v1_05">
+    <isset property="env.IDLPATH_DIR" />
+</condition>
+
+<property name="source.dir" value="src"/>
+<property name="classes.dir" value="classes"/>
+<property name="generated.dir" value="generated"/>
+<property name="idlpath.dir" value="${env.IDLPATH_DIR}"/>
+<property name="lib.dir" value="libs"/>
+
+<path id="jacorb.bootclasspath">
+  <pathelement location="${lib.dir}/jacorb-2.3.0.jar"/>
+  <pathelement location="${lib.dir}/avalon-framework-4.1.5.jar"/>
+  <pathelement location="${lib.dir}/logkit-1.2.jar"/>
+  <pathelement path="${java.class.path}"/>
+  <pathelement path="${sun.boot.class.path}"/>
+</path>
+
+<taskdef name="jacidl" classname="org.jacorb.idl.JacIDL">
+  <classpath>
+    <pathelement location="${lib.dir}/jacorb-idl-2.3.0.jar"/>
+    <pathelement location="${lib.dir}/logkit-1.2.jar"/>
+  </classpath>
+</taskdef>
+
+<target name="clean" description="Deletes only the classes, not IDL generated code">
+  <delete dir="${classes.dir}"/>
+</target>
+
+<target name="clean-all" depends="clean" description="Deletes the classes, generated files and jarfiles">
+  <delete dir="${generated.dir}"/>
+  <delete>
+    <fileset dir="${lib.dir}" includes="scs*.jar"/>
+  </delete> 
+</target>
+
+<!-- CORE definitions -->
+
+<target name="core.check" description="Verifies the jarfiles with the IDL generated and implementation classes of the Java SCS core">
+    <condition property="core.exists">
+        <and>
+            <available file="${lib.dir}/scsidl.jar"/>
+            <available file="${lib.dir}/scs.jar"/>
+        </and>
+    </condition>
+</target>
+
+<target name="idl-core" depends="core.check" unless="core.exists" description="IDL generator of the Java codes for the SCS core">
+  <mkdir dir="${generated.dir}" />
+  <mkdir dir="${classes.dir}" />
+  <jacidl srcdir="${idlpath.dir}" destdir="${generated.dir}"
+    includes="scs.idl"/>
+  <javac srcdir="${generated.dir}" destdir="${classes.dir}"
+    bootclasspathref="jacorb.bootclasspath"/>
+</target>
+
+<target name ="build-core" depends="idl-core" unless="core.exists" description="Builds IDL generated codes and implementation of the SCS core">
+  <mkdir dir="${classes.dir}" />
+  <javac srcdir="${source.dir}/scs/core" destdir="${classes.dir}"
+    bootclasspathref="jacorb.bootclasspath">
+    <classpath>
+      <pathelement path="${classes.dir}"/>
+    </classpath>
+  </javac>
+</target>
+
+<target name="jar-core" depends="core.check,build-core" unless="core.exists" description="Creates the jarfiles for the SCS core">
+  <jar destfile="${lib.dir}/scsidl.jar" basedir="${classes.dir}"
+   includes="scs/core/*.class"/>
+  <jar destfile="${lib.dir}/scs.jar" basedir="${classes.dir}"
+   includes="scs/core/servant/*.class"/>
+</target>
+
+<!-- IDL definitions for auxiliar -->
+
+<target name="auxiliaridl.check" description="Verifies the jarfiles with the IDL generated classes of the Java SCS auxiliar">
+    <condition property="auxiliaridl.exists">
+        <and>
+            <available file="${lib.dir}/scsauxiliaridl.jar"/>
+        </and>
+    </condition>
+</target>
+
+<target name="idl-auxiliar" depends="auxiliaridl.check,idl-core" unless="auxiliaridl.exists" description="IDL generator of the Java code for the SCS auxiliar">
+  <mkdir dir="${generated.dir}" />
+  <mkdir dir="${classes.dir}" />
+  <jacidl srcdir="${idlpath.dir}" destdir="${generated.dir}"
+    includes="auxiliar.idl"/>
+  <javac srcdir="${generated.dir}" destdir="${classes.dir}"
+    bootclasspathref="jacorb.bootclasspath">
+    <classpath>
+      <pathelement location="${lib.dir}/scsidl.jar"/>
+    </classpath>
+  </javac>
+</target>
+
+<target name="jar-auxiliaridl" depends="auxiliaridl.check,idl-auxiliar" unless="auxiliaridl.exists">
+  <jar destfile="${lib.dir}/scsauxiliaridl.jar" basedir="${classes.dir}"
+   includes="scs/auxiliar/*.class"/>
+</target>
+
+<target name="build-auxiliar" depends="jar-core,jar-auxiliaridl">
+  <mkdir dir="${classes.dir}"/>
+  <javac srcdir="${source.dir}/scs/auxiliar/servant" destdir="${classes.dir}"
+    bootclasspathref="jacorb.bootclasspath">
+    <classpath>
+      <pathelement path="${classes.dir}"/>
+      <pathelement location="${lib.dir}/scsauxiliaridl.jar" />
+      <pathelement location="${lib.dir}/scsidl.jar" />
+      <pathelement location="${lib.dir}/scs.jar" />
+    </classpath>
+  </javac>
+</target>
+
+<target name="jar-auxiliar" depends="build-auxiliar">
+  <jar destfile="${lib.dir}/scsauxiliar.jar" basedir="${classes.dir}"
+   includes="scs/auxiliar/servant/*.class"/>
+</target>
+
+</project>
