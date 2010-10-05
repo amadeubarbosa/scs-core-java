@@ -12,7 +12,9 @@
   
   <properties>
     <java.version>1.5</java.version>
+<!-- comentei pela ausencia de testes
     <junit.version>4.6</junit.version>
+-->
     <jacorb.version>2.3.0</jacorb.version>
     <source.encoding>ISO-8859-1</source.encoding>
   </properties>
@@ -55,11 +57,13 @@
       <version>${jacorb.version}</version>
     </dependency>
 
+<!-- comentei pela ausencia de testes
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
+-->
   </dependencies>
 </project>
