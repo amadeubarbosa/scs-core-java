@@ -153,13 +153,13 @@ Demonstraremos aqui o uso mais simples para um componente: apenas uma faceta alé
 
 Esta demonstração será baseada na demo \emph{Hello}, que implementa um componente carregável em contêiner (parte da infra-estrutura de execução). O código apresentado a seguir é uma versão modificada dessa demo, para que possa ser carregado manualmente, sem o uso de um contêiner.
 
-O componente Hello tem quatro interfaces: IComponent, IReceptacles, IMetaInterface e apenas uma interface própria, de nome IHello. Sua IDL está disponível na Listagem 4.
+O componente Hello tem quatro interfaces: IComponent, IReceptacles, IMetaInterface e apenas uma interface própria, de nome Hello. Sua IDL está disponível na Listagem 4.
 
 \begin{labeledcode}[java]{helloidl}{IDL do Componente Hello}
 module scs{
   module demos{
     module helloworld {
-      interface IHello {
+      interface Hello {
         void sayHello();
       };
     };
@@ -167,15 +167,15 @@ module scs{
 };
 \end{labeledcode}
 
-Para implementar a faceta IHello, que conta com apenas um método, \emph{sayHello}, criamos a classe HelloServant.java, que pode ser visualizada na Listagem 5. O código é bastante similar ao apresentado nas listagens 1 e 2.
+Para implementar a faceta Hello, que conta com apenas um método, \emph{sayHello}, criamos a classe HelloServant.java, que pode ser visualizada na Listagem 5. O código é bastante similar ao apresentado nas listagens 1 e 2.
 
-\begin{labeledcode}[java]{helloservant}{A Faceta IHello}
+\begin{labeledcode}[java]{helloservant}{A Faceta Hello}
 package scs.demos.helloworld.servant;
 
 import scs.core.servant.ComponentContext;
-import scs.demos.helloworld.IHelloPOA;
+import scs.demos.helloworld.HelloPOA;
 
-public class HelloServant extends IHelloPOA {
+public class HelloServant extends HelloPOA {
 
   private String name = "World";
   private ComponentContext myComponent;
@@ -221,9 +221,9 @@ Além da implementação da faceta, é necessário um código de criação de componente
       ExtendedFacetDescription[] extDescs = new ExtendedFacetDescription[1];
       ReceptacleDescription[] recepDescs = new ReceptacleDescription[0];
       extDescs[0] =
-        new ExtendedFacetDescription("IHello", 
-          "IDL:scs/demos/helloworld/IHello:1.0", 
-          "scs.demos.hello.servant.HelloServant");
+        new ExtendedFacetDescription("Hello", 
+          "IDL:scs/demos/helloworld/Hello:1.0", 
+          "scs.demos.helloworld.servant.HelloServant");
       
       // criação do ComponentId
       ComponentId cpId =
@@ -234,19 +234,23 @@ Além da implementação da faceta, é necessário um código de criação de componente
       ComponentContext instance = builder.newComponent(extDescs, recepDescs, cpId);
       
       // modificação do nome a ser exibido na mensagem da faceta Hello
-      instance.getFacets().get("IHello").setName("User");
+      HelloServant helloImpl =
+        (HelloServant) context.getFacets().get(FACET_HELLO);
+      helloImpl.setName("User");
       
-      // publicação do IOR para que a faceta IHello do componente possa ser 
+      // publicação do IOR para que a faceta Hello do componente possa ser 
       // encontrada. Observação: podemos exportar qualquer faceta, pois temos 
       // o método _get_component para obter a faceta IComponent e, com ela, 
       // pode-se obter outras facetas(esse passo pode ser substituído por outras 
       // formas de publicação, como a publicação em um serviço de nomes, por
       // exemplo).
-      // Assume-se que writeToFS seja uma função que escreva uma String em
-      // um arquivo.
-      Hello helloObj = instance.getFacetDescriptions().get("IHello").facet_ref;
+      org.omg.CORBA.Object helloObj =
+        instance.getFacetDescs().get("Hello").facet_ref;
       String helloIOR = orb.object_to_string(helloObj);
-      writeToFS(helloIOR, "hello.ior");
+      FileWriter file = new FileWriter("hello.ior");
+      file.write(helloIOR);
+      file.flush();
+      file.close();
       
       // instrução ao ORB para que aguarde por chamadas remotas
       orb.run();
@@ -280,14 +284,13 @@ Por fim, temos o código "cliente", que acessa o componente. Note que esse código
       // outra máquina e, nesse caso, tem de ser copiado manualmente
       // (pode-se também utilizar um método diferente de publicação,
       // como um serviço de nomes).
-      // Assume-se que readFromFile seja uma função que leia o conteúdo
-      // de um arquivo para uma String.
-      String iHelloIOR = readFromFile("hello.ior");
+      BufferedReader in = new BufferedReader(new FileReader("hello.ior"));
+      String iHelloIOR = in.readLine();
       
-      // obtenção das facetas IHello e IComponent
+      // obtenção das facetas Hello e IComponent
       // precisamos utilizar o método narrow pois estamos recebendo um
       // org.omg.CORBA.Object
-      IHello iHelloFacet = IHelloHelper.narrow(orb.string_to_object(iHelloIOR));
+      Hello iHelloFacet = HelloHelper.narrow(orb.string_to_object(iHelloIOR));
       IComponent icFacet = IComponentHelper.narrow(iHelloFacet._get_component());
       
       // inicialização do componente.
