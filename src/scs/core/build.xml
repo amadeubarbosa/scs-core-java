@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-
-<!DOCTYPE project [ <!ENTITY common SYSTEM "../../common.xml"> ]>
-
-<project name="SCS Core" default="jar-core" basedir="../../../../">
-  &common;
-</project>
