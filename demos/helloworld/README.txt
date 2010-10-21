@@ -13,6 +13,18 @@ All code using Maven:
 
 The JAR file generated will be placed on target directory.
 
+In order to execute without the Maven integration, you must:
+  1) create a SCS installation directory
+  mkdir /tmp/install
+  
+  2) copy all dependencies into it:
+  mvn dependency:copy-dependencies -DincludeScope=runtime \
+    -DoutputDirectory=/tmp/install
+  cp target/scs-demos-helloworld-1.2-SNAPSHOT.jar /tmp/install
+  
+  3) now the RUNNING step could be successfully executed (see bin/rundemo to
+  understand how to change the SCS installation directory)
+
 RUNNING:
 
 1 The Java Hello server (saves the CORBA reference in the file: hello.ior):
