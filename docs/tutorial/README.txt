@@ -2,12 +2,12 @@ Como compilar arquivos .tex:
  $ pdflatex <arquivo>.tex
  $ pdflatex <arquivo>.tex
 
-Na primeira execuÃ§Ã£o, o pdf gerado contÃ©m "??" no lugar dos nÃºmeros de
-referÃªncia Ã  seÃ§Ãµes/cÃ³digos/figuras. Por isso a repetiÃ§Ã£o do comando. Na
-primeira, foi gerado um Ã­ndice e na segunda, o arquivo intermediÃ¡rio de Ã­ndice
-jÃ¡ existe e jÃ¡ serÃ¡ usado. 
+Na primeira execução, o pdf gerado contém "??" no lugar dos números de
+referência à seções/códigos/figuras. Por isso a repetição do comando. Na
+primeira, foi gerado um índice e na segunda, o arquivo intermediário de índice
+já existe e já será usado. 
 
-Se houverem referÃªncias bibliogrÃ¡ficas, acontece algo similar, por isso faÃ§a:
+Se houverem referências bibliográficas, acontece algo similar, por isso faça:
  $ pdflatex <arquivo>.tex
  $ bibtex <arquivo>.tex
  $ pdflatex <arquivo>.tex
