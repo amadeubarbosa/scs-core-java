@@ -26,12 +26,10 @@ public class ComponentPropertiesServant extends ComponentPropertiesPOA {
     this.props = new HashMap<String, Property>();
   }
 
-  @Override
   public Property[] getProperties() {
     return props.values().toArray(new Property[props.size()]);
   }
 
-  @Override
   public Property getProperty(String name) throws UndefinedProperty {
     Property value = props.get(name);
     if (value != null)
@@ -39,7 +37,6 @@ public class ComponentPropertiesServant extends ComponentPropertiesPOA {
     throw new UndefinedProperty();
   }
 
-  @Override
   public void setProperty(Property prop) throws ReadOnlyProperty {
     Property value = props.get(prop.name);
     if (value != null)

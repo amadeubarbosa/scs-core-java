@@ -31,7 +31,6 @@ public class ComponentHelpServant extends ComponentHelpPOA {
    * @param id Identificador do componente
    * @return String de auxílio
    */
-  @Override
   public String getHelpInfo(ComponentId id) throws HelpInfoNotAvailable {
     return help.get(id.name);
   }

@@ -9,7 +9,7 @@ public class HelloServant extends HelloPOA {
   private ComponentContext myComponent;
 
   public HelloServant(ComponentContext myComponent) {
-    super( );
+    super();
     this.myComponent = myComponent;
   }
 
@@ -17,12 +17,11 @@ public class HelloServant extends HelloPOA {
     this.name = name;
   }
 
-  //@Override
   public void sayHello() {
     System.out.println("Hello " + name + "!");
   }
 
-  //@Override
+  @Override
   public org.omg.CORBA.Object _get_component() {
     return myComponent.getIComponent();
   }
