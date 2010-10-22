@@ -24,7 +24,7 @@
 \begin{document} 
 
 \title{SCS-Java - Tutorial - Básico}
-\author{C. Augusto, R.Cerqueira \\
+\author{C. Augusto, R. Cerqueira \\
         Tecgraf \\
         Pontifícia Universidade Católica do Rio de Janeiro 
         (PUC-Rio)\\
@@ -80,7 +80,7 @@ Os números de versão do componente, quando unificados, devem ser separados por p
 
 \subsection{Criação de Facetas}
 
-Facetas são interfaces CORBA, e devem ser implementadas por classes definidas pelo usuário, como exigido pelas definições Java desse padrão. No entanto, a implementação SCS-Java exige também que facetas implementem um construtor que receba um \emph{ComponentContext} (Contexto de Componentes). O Contexto pode ser utilizado para acessar outras facetas e o identificador do componente, entre outros dados, como descrito na Seção \ref{contexto}. Um exemplo pode ser conferido na Listagem 1.
+Facetas são interfaces CORBA, e devem ser implementadas por classes definidas pelo usuário, como exigido pelas definições Java desse padrão. No entanto, a implementação SCS-Java exige também que facetas implementem um construtor que receba um \emph{ComponentContext} (Contexto de Componentes). O Contexto pode ser utilizado para acessar outras facetas e o identificador do componente, entre outros dados, como descrito na Seção \ref{contexto}. Um exemplo pode ser conferido na Listagem~\ref{lst:faceta}.
 	
 \begin{labeledcode}[java]{faceta}{Implementação de uma Faceta MyFacet}
 public class MyFacetServant extends MyFacetPOA {
@@ -94,7 +94,7 @@ public class MyFacetServant extends MyFacetPOA {
 }
 \end{labeledcode}
 
-O SCS-Java exige ainda que facetas implementem o método \_get\_component() de CORBA, definido pelo Jacorb, mas o Contexto já fornece um método para suprir essa funcionalidade. Assim, a implementação torna-se trivial e deve ser sempre a mesma, que está exposta na Listagem 2. Existem planos para que esse método seja inserido automaticamente em todas as facetas no futuro, no ato da instanciação do componente.
+O SCS-Java exige ainda que facetas implementem o método \_get\_component() de CORBA, definido pelo Jacorb, mas o Contexto já fornece um método para suprir essa funcionalidade. Assim, a implementação torna-se trivial e deve ser sempre a mesma, que está exposta na Listagem~\ref{lst:_get_component}. Existem planos para que esse método seja inserido automaticamente em todas as facetas no futuro, no ato da instanciação do componente.
 	
 \begin{labeledcode}[java]{_get_component}{O Método CORBA \_get\_component()}
 	@Override
@@ -119,7 +119,7 @@ Não é necessário inserir as facetas básicas (IComponent, IReceptacles e IMetaInt
 
 Um outro detalhe é que, como o Construtor cria os objetos CORBA, é necessário que tenha acesso ao ORB. Para que os componentes tenham acesso ao ORB e POA utilizados, o Construtor fornece métodos para o acesso a eles. Todo Contexto de Componente guarda uma referência para o Construtor que o criou, e assim facetas podem acessá-lo para obter uma referência ao ORB ou POA, conforme suas necessidades.
 
-Um exemplo de código para a criação dos \emph{arrays} de descrições, identificador do componente e utilização da API pode ser visto na Listagem 3.
+Um exemplo de código para a criação dos \emph{arrays} de descrições, identificador do componente e utilização da API pode ser visto na Listagem~\ref{lst:fillDescriptions}.
 
 \begin{labeledcode}[java]{fillDescriptions}{Instanciação de um Novo Componente}
   ORB orb = ...; // referência para o ORB, já inicializado
@@ -153,7 +153,7 @@ Demonstraremos aqui o uso mais simples para um componente: apenas uma faceta alé
 
 Esta demonstração será baseada na demo \emph{Hello}, que implementa um componente carregável em contêiner (parte da infra-estrutura de execução). O código apresentado a seguir é uma versão modificada dessa demo, para que possa ser carregado manualmente, sem o uso de um contêiner.
 
-O componente Hello tem quatro interfaces: IComponent, IReceptacles, IMetaInterface e apenas uma interface própria, de nome Hello. Sua IDL está disponível na Listagem 4.
+O componente Hello tem quatro interfaces: IComponent, IReceptacles, IMetaInterface e apenas uma interface própria, de nome Hello. Sua IDL está disponível na Listagem~\ref{lst:helloidl}.
 
 \begin{labeledcode}[java]{helloidl}{IDL do Componente Hello}
 module scs{
@@ -167,7 +167,7 @@ module scs{
 };
 \end{labeledcode}
 
-Para implementar a faceta Hello, que conta com apenas um método, \emph{sayHello}, criamos a classe HelloServant.java, que pode ser visualizada na Listagem 5. O código é bastante similar ao apresentado nas listagens 1 e 2.
+Para implementar a faceta Hello, que conta com apenas um método, \emph{sayHello}, criamos a classe HelloServant.java, que pode ser visualizada na Listagem~\ref{lst:helloservant}. O código é bastante similar ao apresentado nas Listagens~\ref{lst:faceta} e~\ref{lst:_get_component}.
 
 \begin{labeledcode}[java]{helloservant}{A Faceta Hello}
 package scs.demos.helloworld.servant;
@@ -189,7 +189,6 @@ public class HelloServant extends HelloPOA {
     this.name = name;
   }
 
-  @Override
   public void sayHello() {
     System.out.println("Hello " + name + "!");
   }
@@ -201,7 +200,7 @@ public class HelloServant extends HelloPOA {
 }
 \end{labeledcode}
 
-Além da implementação da faceta, é necessário um código de criação de componente. Esse código, que tipicamente será incluído na função \emph{main} do programa, é muito similar ao da Listagem 3 e pode ser conferido na Listagem 6.
+Além da implementação da faceta, é necessário um código de criação de componente. Esse código, que tipicamente será incluído na função \emph{main} do programa, é muito similar ao da Listagem~\ref{lst:fillDescriptions} e pode ser conferido na Listagem~\ref{lst:hellomain}.
 
 \begin{labeledcode}[java]{hellomain}{Criação do Componente Hello}
   public static void main(String[] args) {
@@ -263,7 +262,7 @@ Além da implementação da faceta, é necessário um código de criação de componente
 
 \end{labeledcode}
 
-Por fim, temos o código "cliente", que acessa o componente. Note que esse código pode ser CORBA puro, não é necessária a criação de um componente para acessar outro componente. Um exemplo desse tipo de código pode ser visto na Listagem 7.
+Por fim, temos o código "cliente", que acessa o componente. Note que esse código pode ser CORBA puro, não é necessária a criação de um componente para acessar outro componente. Um exemplo desse tipo de código pode ser visto na Listagem~\ref{lst:helloclient}.
 
 \begin{labeledcode}[java]{helloclient}{Utilização do Componente Hello}
   public static void main(String[] args) {
@@ -308,6 +307,21 @@ Por fim, temos o código "cliente", que acessa o componente. Note que esse código
   }
 \end{labeledcode}
 
-Neste exemplo, a mensagem "Hello User!" será exibida somente na máquina servidor. O código cliente apenas terá a chamada \emph{sayHello()} completada corretamente e será finalizado sem erros.
+Neste exemplo, a mensagem ``Hello User!'' será exibida somente na máquina servidor. O código cliente apenas terá a chamada \emph{sayHello()} completada corretamente e será finalizado sem erros.
+
+\section{Notas sobre os procedimentos de compilação e execução}
+
+É importante ressaltar que o JacORB exige:
+\begin{itemize}
+  \item compilar (tanto o código servidor quanto o código cliente) utilizando o parâmetro {\bf -Xbootclasspath/p:<localização do jacorb.jar>} no compilador Java (por exemplo, no Eclipse basta colocar o JAR do JacORB com prioridade maior que o JRE Runtime).
+  \item executar (tanto o código servidor quanto o código cliente) passando alguns parâmetros na JVM, conforme mostra a Listagem~\ref{lst:jvmparameters}. Esses parâmetros garantem o uso da implementação CORBA do JacORB ao invés do uso da implementação básica provida pela Sun.
+\end{itemize}
+
+\begin{labeledcode}[]{jvmparameters}{Parâmetros na Sun JVM para forçar o uso do JacORB}
+-Djava.endorsed.dirs=<diretório contendo o JAR do jacorb> \
+  -Djacorb.home=<diretório contendo o JAR do jacorb> \
+  -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB \
+  -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton
+\end{labeledcode}
 
 \end{document}
