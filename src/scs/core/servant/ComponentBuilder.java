@@ -341,7 +341,10 @@ public class ComponentBuilder {
   }
 
   /**
-   * Desativa todas as facetas do componente.
+   * Desativa todas as facetas do componente. As referências facet_ref
+   * continuam não-nulas após a chamada, para manter o acesso ao objeto Java.
+   * O usuário fica responsável por reativar as facetas quando considerar 
+   * apropriado.
    * 
    * @param context Instância do componente.
    * 
@@ -353,7 +356,6 @@ public class ComponentBuilder {
     for (FacetDescription desc : context.getFacetDescs().values()) {
       try {
         this.poa.deactivate_object(this.poa.reference_to_id(desc.facet_ref));
-        desc.facet_ref = null;
       }
       catch (Exception e) {
         e.printStackTrace();
