@@ -131,8 +131,7 @@ public class IReceptaclesServant extends IReceptaclesPOA {
     Receptacle rec = myComponent.getReceptacles().get(receptacle);
     if (rec == null)
       throw new InvalidName();
-    ArrayList<ConnectionDescription> conns = rec.getConnections();
-    return conns.toArray(new ConnectionDescription[conns.size()]);
+    return rec.getReceptacleDescription().connections;
   }
 
   public Map<String, Receptacle> getReceptacles() {
