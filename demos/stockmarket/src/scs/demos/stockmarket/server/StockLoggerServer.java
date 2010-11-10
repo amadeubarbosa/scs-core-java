@@ -25,6 +25,8 @@ import scs.demos.stockmarket.servant.FileExchangePrinterImpl;
 import StockMarket.ExchangePrinterHelper;
 
 /**
+ * This server code is used to execute a StockLogger component.
+ * 
  * @author augusto
  * 
  */
@@ -52,18 +54,24 @@ public class StockLoggerServer {
     ClassNotFoundException, InvocationTargetException, NoSuchMethodException,
     FileNotFoundException {
 
-    // Inicializa o ORB.
+    // These properties are used to force JacORB instead of Sun's ORB
+    // implementation.
     Properties orbProps = new Properties();
     orbProps.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
     orbProps.setProperty("org.omg.CORBA.ORBSingletonClass",
       "org.jacorb.orb.ORBSingleton");
     orbProps.setProperty("OAIAddr", "localhost");
 
+    // ORB initialization.
     ORB orb = ORB.init(args, orbProps);
     POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
     poa.the_POAManager().activate();
 
-    // Cria o componente
+    // "Metadata-only" component creation
+    // The API will be responsible for creating the servants and registering
+    // them with the POA.
+    // TODO: This metadata could be read from a properties file instead of
+    //       being hard-coded.
     ComponentId cpId =
       new ComponentId("StockSeller", (byte) 1, (byte) 0, (byte) 0, "java");
 
@@ -88,13 +96,14 @@ public class StockLoggerServer {
     File f = new File("logger.txt");
     fp.setFile(f);
 
-    // Escreve no arquivo a referência para o objeto CORBA da faceta IComponent
+    // Writes the reference of the IComponent facet to a file
     PrintWriter ps =
       new PrintWriter(new FileOutputStream(new File("logger.ior")));
     ps.println(orb.object_to_string(context.getIComponent()));
     ps.close();
 
-    // Bloqueia a thread corrente até o ORB finalizar
+    // Blocks the current thread, waiting for calls, until the ORB is 
+    // finalized
     orb.run();
   }
 }

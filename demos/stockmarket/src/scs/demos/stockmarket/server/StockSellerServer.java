@@ -30,6 +30,8 @@ import StockMarket.StockExchangeHelper;
 import StockMarket.StockServerHelper;
 
 /**
+ * This server code is used to execute a StockSeller component.
+ * 
  * @author augusto
  * 
  */
@@ -57,18 +59,22 @@ public class StockSellerServer {
     InvocationTargetException, NoSuchMethodException, InvalidName,
     AdapterInactive, IOException {
 
-    // Inicializa o ORB.
+    // These properties are used to force JacORB instead of Sun's ORB
+    // implementation.
     Properties orbProps = new Properties();
     orbProps.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
     orbProps.setProperty("org.omg.CORBA.ORBSingletonClass",
       "org.jacorb.orb.ORBSingleton");
     orbProps.setProperty("OAIAddr", "localhost");
 
+    // ORB initialization.
     ORB orb = ORB.init(args, orbProps);
     POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
     poa.the_POAManager().activate();
 
-    // Cria o componente
+    // "Manual" component creation
+    // We are responsible for creating the servants and registering them with
+    // the POA
     ComponentId cpId =
       new ComponentId("StockSeller", (byte) 1, (byte) 0, (byte) 0, "java");
 
@@ -101,13 +107,14 @@ public class StockSellerServer {
 
     builder.newComponent(facetDescs, receptDescs, cpId, context);
 
-    // Escreve no arquivo a referência para o objeto CORBA da faceta IComponent
+    // Writes the reference of the IComponent facet to a file
     PrintWriter ps =
       new PrintWriter(new FileOutputStream(new File("seller.ior")));
     ps.println(orb.object_to_string(context.getIComponent()));
     ps.close();
 
-    // Bloqueia a thread corrente até o ORB finalizar
+    // Blocks the current thread, waiting for calls, until the ORB is 
+    // finalized
     orb.run();
   }
 }

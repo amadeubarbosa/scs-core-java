@@ -1,49 +1,39 @@
 // StockMarket.idl
-// O módulo StockMarket consiste das definições
-// úteis para desenvolvimento de aplicações
-// que lidam com mercado de ações.
+
 module StockMarket {
-  // O tipo StockSymbol é usado para representar os símbolos
-  // das ações.
+  // The StockSymbol type is used to represent stock symbols.
   typedef string StockSymbol;
   
-  // Um StockSymbolList é uma sequência de StockSymbols.
+  // A StockSymbolList is a sequence of StockSymbols.
   typedef sequence<StockSymbol> StockSymbolList;
   
-  // A interface StockServer é a interface que fornece
-  // as informações sobre ações.
+  // The StockServer interface provides information on available stocks.
   interface StockServer {
-    // getStockValue() retorna o valor de uma
-    // determinada ação, definida por um
-    // StockSymbol fornecido como parâmetro de entrada.
-    // Se o StockSymbol dado for desconhecido, o resultado
-    // é indefinido. Depois veremos como usar uma exceção
-    // para sinalizar essa condição.
+    // getStockValue() returns the value of a specific stock, defined by a
+    // StockSymbol parameter. If the StockSymbol is unknown, the result is
+    // undefined. (an exception is not used here for the sake of simplicity)
     float getStockValue(in StockSymbol symbol);
   
-    // getStockSymbols() retorna uma sequência com todos os
-    // StockSymbols conhecidos.
+    // getStockSymbols() returns a sequence with all known StockSymbols.
     StockSymbolList getStockSymbols();
   };
 
-  // A interface StockExchange é a interface que permite a compra 
-  // de ações.
+  // The StockExchange interface allows the exchange of stocks.
   interface StockExchange {
-    // buyStock() diminui a quantidade de ações 
-    // disponíveis. Se o StockSymbol for conhecido, o 
-    // número de ações é diminuído de 1, todos os
-    // interessados são avisados e true é retornado.
-    // Se o StockSymbol dado for desconhecido ou sua 
-    // quantidade for zero, é retornado false.
+    // buyStock() subtracts the quantity of available stocks. If the
+    // StockSymbol is known, the stock quantity will be subtracted by one, all
+    // listeners will be informed and true returned. If not or if quantity is
+    // zero, false is returned.
     boolean buyStock(in StockSymbol symbol);
   };
 
-  // A interface ExchangePrinter é a interface que representa uma 
-  // impressora de negociações de ações.
+  // The ExchangePrinter interface represents a printer of stock exchanges.
+  // This interface may act as a listener for buyStock events from the 
+  // StockExchange interface.
   interface ExchangePrinter {
-    // print() imprime que houve uma negociação da ação indicada.
-    // A saída utilizada para impressão não é especificada.
-    // Exemplos de saídas: tela, arquivo, clientes remotos.
+    // print() prints a message informing that a stock exchange took place.
+    // The output is not specified. Examples include the standard output,
+    // display, file and remote clients.
     void print(in StockSymbol symbol);
   };
 };

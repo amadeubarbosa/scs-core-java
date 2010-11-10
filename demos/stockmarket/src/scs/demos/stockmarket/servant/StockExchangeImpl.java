@@ -12,6 +12,9 @@ import StockMarket.ExchangePrinterHelper;
 import StockMarket.StockExchangePOA;
 
 /**
+ * This class implements a StockExchange facet that allows the purchase of an
+ * available stock.
+ * 
  * @author augusto
  * 
  */
@@ -19,7 +22,9 @@ public class StockExchangeImpl extends StockExchangePOA {
   private StockSellerContext context;
 
   /**
-   * @param context
+   * Constructor.
+   * 
+   * @param context The component that this facet belongs to.
    */
   public StockExchangeImpl(StockSellerContext context) {
     this.context = context;

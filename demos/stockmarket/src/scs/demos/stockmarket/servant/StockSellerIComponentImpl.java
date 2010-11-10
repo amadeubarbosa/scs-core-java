@@ -9,13 +9,18 @@ import scs.core.servant.Receptacle;
 import scs.demos.stockmarket.util.StockSellerContext;
 
 /**
+ * This class implements an IComponent facet for the StockSeller component. It
+ * enforces necessary connections and remove them on shutdown.
+ * 
  * @author augusto
  * 
  */
 public class StockSellerIComponentImpl extends IComponentServant {
 
   /**
-   * @param context
+   * Constructor.
+   * 
+   * @param context The component that this facet belongs to.
    */
   public StockSellerIComponentImpl(StockSellerContext context) {
     super(context);

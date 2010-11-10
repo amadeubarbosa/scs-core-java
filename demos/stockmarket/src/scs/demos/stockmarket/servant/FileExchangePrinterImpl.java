@@ -10,22 +10,28 @@ import scs.core.servant.ComponentContext;
 import StockMarket.ExchangePrinterPOA;
 
 /**
- * @author augusto
+ * This class implements an ExchangePrinter facet that prints stock exchange
+ * information to a file.
  * 
+ * @author augusto
  */
 public class FileExchangePrinterImpl extends ExchangePrinterPOA {
   private ComponentContext context;
   private FileWriter writer;
 
   /**
-   * @param context
+   * Constructor.
+   * 
+   * @param context The component that this facet belongs to.
    */
   public FileExchangePrinterImpl(ComponentContext context) {
     this.context = context;
   }
 
   /**
-   * @param f
+   * Sets the file to be written.
+   * 
+   * @param f The file to be written.
    */
   public void setFile(File f) {
     try {
@@ -38,7 +44,7 @@ public class FileExchangePrinterImpl extends ExchangePrinterPOA {
 
   public void print(String symbol) {
     try {
-      writer.write("Compra da ação " + symbol + " executada.");
+      writer.write("Purchase of stock " + symbol + " executed.");
       writer.flush();
     }
     catch (IOException e) {

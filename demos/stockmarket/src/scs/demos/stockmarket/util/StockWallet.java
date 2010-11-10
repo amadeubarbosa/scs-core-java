@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
+ * This class represents a stock wallet. It contains stocks with associated
+ * values and quantities.
+ * 
  * @author augusto
  * 
  */
@@ -13,6 +16,8 @@ public class StockWallet {
   private Properties quantities;
 
   /**
+   * Default constructor.
+   * 
    * @throws IOException
    * 
    */
@@ -24,8 +29,11 @@ public class StockWallet {
   }
 
   /**
-   * @param symbol
-   * @return True se a venda foi concretizada. False caso contrário.
+   * Sells one unit of a specific stock.
+   * 
+   * @param symbol The stock being sold.
+   * @return True if the symbol was present and positive in quantity. False if
+   *         not.
    */
   synchronized public boolean sellStock(String symbol) {
     if (quantities.containsKey(symbol)) {
@@ -40,18 +48,21 @@ public class StockWallet {
   }
 
   /**
+   * Provides the value of a stock.
+   * 
    * @param symbol The stock symbol.
    * @return The stock value.
    */
   synchronized public float getStockValue(String symbol) {
     if (values.containsKey(symbol)) {
-      // Simbolo encontrado; retorna seu valor
       return Float.parseFloat(values.getProperty(symbol));
     }
     return 0f;
   }
 
   /**
+   * Provides all stock symbols present in the wallet.
+   * 
    * @return All stock symbols.
    */
   synchronized public String[] getStockSymbols() {

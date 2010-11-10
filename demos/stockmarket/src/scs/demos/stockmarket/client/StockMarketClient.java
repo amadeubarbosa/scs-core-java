@@ -16,8 +16,10 @@ import StockMarket.StockServer;
 import StockMarket.StockServerHelper;
 
 /**
- * @author augusto
+ * This client code is used to retrieve a list of stocks from a StockSeller
+ * component and then buy one of each stock.
  * 
+ * @author augusto
  */
 public class StockMarketClient {
 
@@ -26,23 +28,25 @@ public class StockMarketClient {
    * @throws IOException
    */
   public static void main(String[] args) throws IOException {
-    // As propriedades que informam o uso do JacORB como ORB.
+
+    // These properties are used to force JacORB instead of Sun's ORB
+    // implementation.
     Properties orbProps = new Properties();
     orbProps.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
     orbProps.setProperty("org.omg.CORBA.ORBSingletonClass",
       "org.jacorb.orb.ORBSingleton");
     orbProps.setProperty("OAIAddr", "localhost");
 
-    // Inicializa o ORB.
+    // ORB initialization.
     ORB orb = ORB.init(args, orbProps);
 
-    // Lê o IOR do arquivo cujo nome é passado como parâmetro
+    // Reads the StockSeller IOR from a file
     BufferedReader reader =
       new BufferedReader(new InputStreamReader(
         new FileInputStream("seller.ior")));
     String iorSeller = reader.readLine();
 
-    // Obtém as referências do StockSeller
+    // Creates proxies for a StockSeller component
     org.omg.CORBA.Object obj = orb.string_to_object(iorSeller);
     IComponent icStockSeller = IComponentHelper.narrow(obj);
 
@@ -54,14 +58,14 @@ public class StockMarketClient {
 
     String[] stocks = server.getStockSymbols();
 
-    // compra uma ação de cada
+    // Buys one of each stock
     for (int i = 0; i < stocks.length; i++) {
       if (exchange.buyStock(stocks[i])) {
-        System.out.println("Ação " + stocks[i] + " comprada.");
+        System.out.println("Stock " + stocks[i] + " bought.");
       }
       else {
-        System.out.println("Ação " + stocks[i]
-          + " não está disponível para compra.");
+        System.out.println("Stock " + stocks[i]
+          + " is not available for purchase.");
       }
     }
   }

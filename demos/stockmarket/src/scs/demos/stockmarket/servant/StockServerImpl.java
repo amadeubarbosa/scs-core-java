@@ -6,6 +6,9 @@ import scs.demos.stockmarket.util.StockSellerContext;
 import StockMarket.StockServerPOA;
 
 /**
+ * This class implements the StockServer facet. It provides information on
+ * available stocks and their values.
+ * 
  * @author augusto
  * 
  */
@@ -13,7 +16,9 @@ public class StockServerImpl extends StockServerPOA {
   private StockSellerContext context;
 
   /**
-   * @param context
+   * Constructor.
+   * 
+   * @param context The component that this facet belongs to.
    */
   public StockServerImpl(StockSellerContext context) {
     this.context = context;
