@@ -52,8 +52,6 @@ public class ComponentContext {
     addBasicFacets();
   }
 
-  //TODO: forma de criar um componente a partir de uma descrição XML. Criar outra classe para não forçar dependências de bibliotecas XML?
-
   private void addBasicFacets() throws SCSException {
     putFacet(IComponent.class.getSimpleName(), IComponentHelper.id(),
       new IComponentServant(this));
