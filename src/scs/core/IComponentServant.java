@@ -1,11 +1,4 @@
-package scs.core.servant;
-
-import scs.core.ComponentId;
-import scs.core.FacetDescription;
-import scs.core.IComponent;
-import scs.core.IComponentPOA;
-import scs.core.ShutdownFailed;
-import scs.core.StartupFailed;
+package scs.core;
 
 /**
  * Servant da interface IDL {@link IComponent}. Implementa as características
@@ -42,7 +35,8 @@ public class IComponentServant extends IComponentPOA {
    * @see scs.core.IComponentOperations#getFacet(java.lang.String)
    */
   public org.omg.CORBA.Object getFacet(String facet_interface) {
-    for (FacetDescription desc : myComponent.getFacetDescs().values()) {
+    for (Facet facet : myComponent.getFacets()) {
+      FacetDescription desc = facet.getDescription();
       if (desc.interface_name.equals(facet_interface))
         return desc.facet_ref;
     }
@@ -57,15 +51,15 @@ public class IComponentServant extends IComponentPOA {
    * @see scs.core.IComponentOperations#getFacetByName(java.lang.String)
    */
   public org.omg.CORBA.Object getFacetByName(String facet) {
-    FacetDescription desc = myComponent.getFacetDescs().get(facet);
+    FacetDescription desc = myComponent.getFacetByName(facet).getDescription();
     if (desc != null)
       return desc.facet_ref;
     return null;
   }
 
   /**
-   * Implementação vazia que pode ser sobrecarregada para permitir algum procedimento
-   * específico na inicialização do IComponent
+   * Implementação vazia que pode ser sobrecarregada para permitir algum
+   * procedimento específico na inicialização do IComponent
    * 
    * @see scs.core.IComponentOperations#startup()
    */
@@ -73,8 +67,8 @@ public class IComponentServant extends IComponentPOA {
   }
 
   /**
-   * Implementação vazia que pode ser sobrecarregada para permitir algum procedimento
-   * específico na finalização do IComponent
+   * Implementação vazia que pode ser sobrecarregada para permitir algum
+   * procedimento específico na finalização do IComponent
    * 
    * @see scs.core.IComponentOperations#shutdown()
    */

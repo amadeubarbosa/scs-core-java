@@ -8,7 +8,7 @@ import scs.auxiliar.ComponentPropertiesPOA;
 import scs.auxiliar.Property;
 import scs.auxiliar.ReadOnlyProperty;
 import scs.auxiliar.UndefinedProperty;
-import scs.core.servant.ComponentContext;
+import scs.core.ComponentContext;
 
 /**
  * Servant da inteface IDL {@link ComponentProperties}

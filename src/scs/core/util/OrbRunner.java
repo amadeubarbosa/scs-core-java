@@ -1,4 +1,4 @@
-package scs.core.servant;
+package scs.core.util;
 
 import org.omg.CORBA.ORB;
 
