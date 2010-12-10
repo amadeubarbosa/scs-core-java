@@ -1,6 +1,6 @@
 package scs.demos.helloworld.servant;
 
-import scs.core.servant.ComponentContext;
+import scs.core.ComponentContext;
 import scs.demos.helloworld.HelloPOA;
 
 public class HelloServant extends HelloPOA {

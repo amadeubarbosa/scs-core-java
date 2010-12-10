@@ -32,14 +32,14 @@ public class BasicClientApp {
       // (pode-se também utilizar um método diferente de publicação,
       // como um serviço de nomes).
       BufferedReader in = new BufferedReader(new FileReader("hello.ior"));
-      String iHelloIOR = in.readLine();
+      String icIOR = in.readLine();
 
       // obtenção das facetas Hello e IComponent
       // precisamos utilizar o método narrow pois estamos recebendo um
       // org.omg.CORBA.Object
-      Hello iHelloFacet = HelloHelper.narrow(orb.string_to_object(iHelloIOR));
-      IComponent icFacet =
-        IComponentHelper.narrow(iHelloFacet._get_component());
+      IComponent icFacet = IComponentHelper.narrow(orb.string_to_object(icIOR));
+      Hello iHelloFacet =
+        HelloHelper.narrow(icFacet.getFacet(HelloHelper.id()));
 
       // inicialização do componente.
       icFacet.startup();
