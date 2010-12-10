@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component xmlns="tecgraf.scs.demos.stockmarket.server.StockLoggerServer">
+  <id>
+    <name>StockLogger</name>
+    <version>1.0.0</version>
+    <platformSpec>Java 1.5</platformSpec>
+  </id>
+  <facets>
+    <facet>
+      <name>DisplayExchangePrinter</name>
+      <repId>IDL:StockMarket/ExchangePrinter:1.0</repId>
+      <servant>scs.demos.stockmarket.servant.DisplayExchangePrinterImpl</servant>
+    </facet>
+    <facet>
+      <name>FileExchangePrinter</name>
+      <repId>IDL:StockMarket/ExchangePrinter:1.0</repId>
+      <servant>scs.demos.stockmarket.servant.FileExchangePrinterImpl</servant>
+    </facet>
+  </facets>
+</component>

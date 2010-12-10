@@ -2,7 +2,7 @@ package scs.demos.stockmarket.servant;
 
 import org.omg.CORBA.Object;
 
-import scs.core.servant.ComponentContext;
+import scs.core.ComponentContext;
 import StockMarket.ExchangePrinterPOA;
 
 /**

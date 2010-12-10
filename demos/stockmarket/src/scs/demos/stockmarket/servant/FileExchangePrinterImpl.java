@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.omg.CORBA.Object;
 
-import scs.core.servant.ComponentContext;
+import scs.core.ComponentContext;
 import StockMarket.ExchangePrinterPOA;
 
 /**
@@ -44,7 +44,7 @@ public class FileExchangePrinterImpl extends ExchangePrinterPOA {
 
   public void print(String symbol) {
     try {
-      writer.write("Purchase of stock " + symbol + " executed.");
+      writer.write("Purchase of stock " + symbol + " executed.\n");
       writer.flush();
     }
     catch (IOException e) {

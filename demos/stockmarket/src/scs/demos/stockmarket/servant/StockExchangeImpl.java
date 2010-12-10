@@ -1,7 +1,7 @@
 package scs.demos.stockmarket.servant;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.omg.CORBA.Object;
 
@@ -33,15 +33,13 @@ public class StockExchangeImpl extends StockExchangePOA {
   public boolean buyStock(String symbol) {
     if (context.getWallet().sellStock(symbol)) {
       try {
-        ArrayList<ConnectionDescription> conns =
-          context.getReceptacles().get("ExchangePrinter").getConnections();
-        synchronized (conns) {
-          for (Iterator<ConnectionDescription> iterator = conns.iterator(); iterator
-            .hasNext();) {
-            ConnectionDescription conn = iterator.next();
-            ExchangePrinter printer = ExchangePrinterHelper.narrow(conn.objref);
-            printer.print(symbol);
-          }
+        List<ConnectionDescription> conns =
+          context.getReceptacleByName("ExchangePrinter").getConnections();
+        for (Iterator<ConnectionDescription> iterator = conns.iterator(); iterator
+          .hasNext();) {
+          ConnectionDescription conn = iterator.next();
+          ExchangePrinter printer = ExchangePrinterHelper.narrow(conn.objref);
+          printer.print(symbol);
         }
       }
       catch (Exception e) {

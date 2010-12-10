@@ -17,16 +17,18 @@ import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 import scs.core.ComponentId;
-import scs.core.FacetDescription;
+import scs.core.IComponent;
 import scs.core.IComponentHelper;
-import scs.core.ReceptacleDescription;
-import scs.core.servant.ComponentBuilder;
+import scs.core.exception.SCSException;
 import scs.demos.stockmarket.servant.StockExchangeImpl;
 import scs.demos.stockmarket.servant.StockSellerIComponentImpl;
 import scs.demos.stockmarket.servant.StockServerImpl;
 import scs.demos.stockmarket.util.StockSellerContext;
+import StockMarket.ExchangePrinter;
 import StockMarket.ExchangePrinterHelper;
+import StockMarket.StockExchange;
 import StockMarket.StockExchangeHelper;
+import StockMarket.StockServer;
 import StockMarket.StockServerHelper;
 
 /**
@@ -73,48 +75,36 @@ public class StockSellerServer {
     poa.the_POAManager().activate();
 
     // "Manual" component creation
-    // We are responsible for creating the servants and registering them with
-    // the POA
+    // We are responsible for creating the servants
     ComponentId cpId =
       new ComponentId("StockSeller", (byte) 1, (byte) 0, (byte) 0, "java");
 
-    ComponentBuilder builder = new ComponentBuilder(poa, orb);
+    StockSellerContext component;
+    try {
+      component = new StockSellerContext(orb, poa, cpId);
 
-    StockSellerContext context = new StockSellerContext(builder, cpId);
+      component.putFacet(IComponent.class.getSimpleName(), IComponentHelper
+        .id(), new StockSellerIComponentImpl(component));
+      component.putFacet(StockServer.class.getSimpleName(), StockServerHelper
+        .id(), new StockServerImpl(component));
+      component.putFacet(StockExchange.class.getSimpleName(),
+        StockExchangeHelper.id(), new StockExchangeImpl(component));
 
-    FacetDescription[] facetDescs = new FacetDescription[3];
+      component.putReceptacle(ExchangePrinter.class.getSimpleName(),
+        ExchangePrinterHelper.id(), true);
 
-    FacetDescription icDesc =
-      new FacetDescription("IComponent", IComponentHelper.id(), poa
-        .servant_to_reference(new StockSellerIComponentImpl(context)));
-    facetDescs[0] = icDesc;
+      // Writes the reference of the IComponent facet to a file
+      PrintWriter ps =
+        new PrintWriter(new FileOutputStream(new File("seller.ior")));
+      ps.println(orb.object_to_string(component.getIComponent()));
+      ps.close();
 
-    FacetDescription ssDesc =
-      new FacetDescription("StockServer", StockServerHelper.id(), poa
-        .servant_to_reference(new StockServerImpl(context)));
-    facetDescs[1] = ssDesc;
-
-    FacetDescription seDesc =
-      new FacetDescription("StockExchange", StockExchangeHelper.id(), poa
-        .servant_to_reference(new StockExchangeImpl(context)));
-    facetDescs[2] = seDesc;
-
-    ReceptacleDescription[] receptDescs = new ReceptacleDescription[1];
-    ReceptacleDescription receptDesc =
-      new ReceptacleDescription("ExchangePrinter", ExchangePrinterHelper.id(),
-        true, null);
-    receptDescs[0] = receptDesc;
-
-    builder.newComponent(facetDescs, receptDescs, cpId, context);
-
-    // Writes the reference of the IComponent facet to a file
-    PrintWriter ps =
-      new PrintWriter(new FileOutputStream(new File("seller.ior")));
-    ps.println(orb.object_to_string(context.getIComponent()));
-    ps.close();
-
-    // Blocks the current thread, waiting for calls, until the ORB is 
-    // finalized
-    orb.run();
+      // Blocks the current thread, waiting for calls, until the ORB is 
+      // finalized
+      orb.run();
+    }
+    catch (SCSException e) {
+      e.getCause().printStackTrace();
+    }
   }
 }

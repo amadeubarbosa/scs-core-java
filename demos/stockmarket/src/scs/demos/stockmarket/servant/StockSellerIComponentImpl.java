@@ -1,11 +1,8 @@
 package scs.demos.stockmarket.servant;
 
-import java.util.ArrayList;
-
-import scs.core.ConnectionDescription;
+import scs.core.IComponentServant;
+import scs.core.Receptacle;
 import scs.core.StartupFailed;
-import scs.core.servant.IComponentServant;
-import scs.core.servant.Receptacle;
 import scs.demos.stockmarket.util.StockSellerContext;
 
 /**
@@ -27,19 +24,16 @@ public class StockSellerIComponentImpl extends IComponentServant {
   }
 
   @Override
-  public void startup() throws StartupFailed {
-    if (myComponent.getReceptacles().get("ExchangePrinter").getConnections()
+  public synchronized void startup() throws StartupFailed {
+    if (myComponent.getReceptacleByName("ExchangePrinter").getConnections()
       .size() < 1) {
       throw new StartupFailed("There must be at least one printer connected.");
     }
   }
 
   @Override
-  public void shutdown() {
-    Receptacle rec = myComponent.getReceptacles().get("ExchangePrinter");
-    ArrayList<ConnectionDescription> conns = rec.getConnections();
-    synchronized (conns) {
-      conns.clear();
-    }
+  public synchronized void shutdown() {
+    Receptacle rec = myComponent.getReceptacleByName("ExchangePrinter");
+    rec.clearConnections();
   }
 }

@@ -2,9 +2,12 @@ package scs.demos.stockmarket.util;
 
 import java.io.IOException;
 
+import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POA;
+
+import scs.core.ComponentContext;
 import scs.core.ComponentId;
-import scs.core.servant.ComponentBuilder;
-import scs.core.servant.ComponentContextImpl;
+import scs.core.exception.SCSException;
 
 /**
  * This class represents the StockSeller component locally.
@@ -12,7 +15,7 @@ import scs.core.servant.ComponentContextImpl;
  * @author augusto
  * 
  */
-public class StockSellerContext extends ComponentContextImpl {
+public class StockSellerContext extends ComponentContext {
   // Stocks with their respective values and quantities
   private StockWallet wallet;
 
@@ -23,10 +26,11 @@ public class StockSellerContext extends ComponentContextImpl {
    *        servants
    * @param id This component's ComponentId
    * @throws IOException
+   * @throws SCSException
    */
-  public StockSellerContext(ComponentBuilder builder, ComponentId id)
-    throws IOException {
-    super(builder, id);
+  public StockSellerContext(ORB orb, POA poa, ComponentId id)
+    throws IOException, SCSException {
+    super(orb, poa, id);
     wallet = new StockWallet();
   }
 

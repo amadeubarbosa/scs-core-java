@@ -16,13 +16,10 @@ import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 
-import scs.core.ComponentId;
-import scs.core.servant.ComponentBuilder;
-import scs.core.servant.ComponentContext;
-import scs.core.servant.ExtendedFacetDescription;
-import scs.demos.stockmarket.servant.DisplayExchangePrinterImpl;
+import scs.core.ComponentContext;
+import scs.core.builder.XMLComponentBuilder;
+import scs.core.exception.SCSException;
 import scs.demos.stockmarket.servant.FileExchangePrinterImpl;
-import StockMarket.ExchangePrinterHelper;
 
 /**
  * This server code is used to execute a StockLogger component.
@@ -70,29 +67,20 @@ public class StockLoggerServer {
     // "Metadata-only" component creation
     // The API will be responsible for creating the servants and registering
     // them with the POA.
-    // TODO: This metadata could be read from a properties file instead of
-    //       being hard-coded.
-    ComponentId cpId =
-      new ComponentId("StockSeller", (byte) 1, (byte) 0, (byte) 0, "java");
+    File is = new File("resources/" + args[0]);
+    XMLComponentBuilder xmlBuilder = new XMLComponentBuilder();
+    ComponentContext context;
+    try {
+      context = xmlBuilder.build(orb, poa, is);
+    }
+    catch (SCSException e) {
+      e.getCause().printStackTrace();
+      return;
+    }
 
-    ComponentBuilder builder = new ComponentBuilder(poa, orb);
-
-    ExtendedFacetDescription[] extFacetDescs = new ExtendedFacetDescription[2];
-
-    ExtendedFacetDescription depDesc =
-      new ExtendedFacetDescription("DisplayExchangePrinter",
-        ExchangePrinterHelper.id(), DisplayExchangePrinterImpl.class
-          .getCanonicalName());
-    extFacetDescs[0] = depDesc;
-
-    ExtendedFacetDescription fepDesc =
-      new ExtendedFacetDescription("FileExchangePrinter", ExchangePrinterHelper
-        .id(), FileExchangePrinterImpl.class.getCanonicalName());
-    extFacetDescs[1] = fepDesc;
-
-    ComponentContext context = builder.newComponent(extFacetDescs, cpId);
     FileExchangePrinterImpl fp =
-      (FileExchangePrinterImpl) context.getFacets().get("FileExchangePrinter");
+      (FileExchangePrinterImpl) context.getFacetByName("FileExchangePrinter")
+        .getServant();
     File f = new File("logger.txt");
     fp.setFile(f);
 
