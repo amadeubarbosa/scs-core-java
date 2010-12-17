@@ -1,13 +1,8 @@
-package scs.auxiliar.servant;
+package scs.auxiliar;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import scs.auxiliar.ComponentProperties;
-import scs.auxiliar.ComponentPropertiesPOA;
-import scs.auxiliar.Property;
-import scs.auxiliar.ReadOnlyProperty;
-import scs.auxiliar.UndefinedProperty;
 import scs.core.ComponentContext;
 
 /**

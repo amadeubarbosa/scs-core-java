@@ -1,11 +1,8 @@
-package scs.auxiliar.servant;
+package scs.auxiliar;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import scs.auxiliar.ComponentHelp;
-import scs.auxiliar.ComponentHelpPOA;
-import scs.auxiliar.HelpInfoNotAvailable;
 import scs.core.ComponentContext;
 import scs.core.ComponentId;
 
