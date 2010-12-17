@@ -3,8 +3,13 @@ package scs.core.builder;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
@@ -29,11 +34,11 @@ public class XMLComponentBuilder {
   private final String COMPONENT_CONTEXT_ELEMENT = "context";
   private final String FACET_ELEMENT = "facet";
   private final String FACET_NAME = "name";
-  private final String FACET_REP_ID = "repId";
-  private final String FACET_SERVANT = "servant";
+  private final String FACET_INTERFACE_NAME = "interfaceName";
+  private final String FACET_IMPL = "facetImpl";
   private final String RECEPTACLE_ELEMENT = "receptacle";
   private final String RECEPTACLE_NAME = "name";
-  private final String RECEPTACLE_REP_ID = "repId";
+  private final String RECEPTACLE_INTERFACE_NAME = "interfaceName";
   private final String RECEPTACLE_MULTIPLEX = "isMultiplex";
   private final String VERSION_DELIMITER = "\\.";
 
@@ -41,8 +46,17 @@ public class XMLComponentBuilder {
     ComponentContext context = null;
     try {
       DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+      dbFactory.setNamespaceAware(true);
       DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
       Document doc = dBuilder.parse(f);
+
+      SchemaFactory factory =
+        SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+      Schema schema =
+        factory.newSchema(new File("resources/ComponentDescription.xsd"));
+      Validator validator = schema.newValidator();
+      validator.validate(new DOMSource(doc));
+
       doc.getDocumentElement().normalize();
 
       ComponentId id = getComponentId(doc);
@@ -125,10 +139,10 @@ public class XMLComponentBuilder {
       if (node.getNodeType() == Node.ELEMENT_NODE) {
         Element element = (Element) node;
         String name = getTagValue(FACET_NAME, element);
-        String interfaceName = getTagValue(FACET_REP_ID, element);
-        String servantName = getTagValue(FACET_SERVANT, element);
+        String interfaceName = getTagValue(FACET_INTERFACE_NAME, element);
+        String facetImpl = getTagValue(FACET_IMPL, element);
         Class<?> c =
-          Class.forName(servantName, true, Thread.currentThread()
+          Class.forName(facetImpl, true, Thread.currentThread()
             .getContextClassLoader());
         Object servant =
           c.getConstructor(ComponentContext.class).newInstance(context);
@@ -149,7 +163,7 @@ public class XMLComponentBuilder {
       if (node.getNodeType() == Node.ELEMENT_NODE) {
         Element element = (Element) node;
         String name = getTagValue(RECEPTACLE_NAME, element);
-        String interfaceName = getTagValue(RECEPTACLE_REP_ID, element);
+        String interfaceName = getTagValue(RECEPTACLE_INTERFACE_NAME, element);
         boolean isMultiplex =
           Boolean.parseBoolean(getTagValue(RECEPTACLE_MULTIPLEX, element));
         context.putReceptacle(name, interfaceName, isMultiplex);
