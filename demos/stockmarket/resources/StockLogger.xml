@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<component xmlns="tecgraf.scs.demos.stockmarket.server.StockLoggerServer">
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<component xmlns="tecgraf.scs.core">
   <id>
     <name>StockLogger</name>
     <version>1.0.0</version>
@@ -8,13 +8,13 @@
   <facets>
     <facet>
       <name>DisplayExchangePrinter</name>
-      <repId>IDL:StockMarket/ExchangePrinter:1.0</repId>
-      <servant>scs.demos.stockmarket.servant.DisplayExchangePrinterImpl</servant>
+      <interfaceName>IDL:StockMarket/ExchangePrinter:1.0</interfaceName>
+      <facetImpl>scs.demos.stockmarket.servant.DisplayExchangePrinterImpl</facetImpl>
     </facet>
     <facet>
       <name>FileExchangePrinter</name>
-      <repId>IDL:StockMarket/ExchangePrinter:1.0</repId>
-      <servant>scs.demos.stockmarket.servant.FileExchangePrinterImpl</servant>
+      <interfaceName>IDL:StockMarket/ExchangePrinter:1.0</interfaceName>
+      <facetImpl>scs.demos.stockmarket.servant.FileExchangePrinterImpl</facetImpl>
     </facet>
   </facets>
 </component>
