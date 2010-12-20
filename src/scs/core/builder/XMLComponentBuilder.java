@@ -52,8 +52,10 @@ public class XMLComponentBuilder {
 
       SchemaFactory factory =
         SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+      // obtem xsd a partir do classpath
       Schema schema =
-        factory.newSchema(new File("resources/ComponentDescription.xsd"));
+        factory.newSchema(new File(getClass().getClassLoader().getResource(
+          "ComponentDescription.xsd").toURI()));
       Validator validator = schema.newValidator();
       validator.validate(new DOMSource(doc));
 
