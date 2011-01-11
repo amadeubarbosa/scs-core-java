@@ -204,7 +204,7 @@ public class ComponentContext {
     return null;
   }
 
-  public int generateConnectionId() {
+  int generateConnectionId() {
     return currentConnectionId++;
   }
 
