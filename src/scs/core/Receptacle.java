@@ -21,7 +21,7 @@ public class Receptacle {
    * retornar como ConnectionDescription[] (mapeamento padrão de sequence
    * CORBA).
    */
-  List<ConnectionDescription> connections;
+  private List<ConnectionDescription> connections;
 
   /**
    * Construtor a partir de uma descrição.
@@ -33,6 +33,17 @@ public class Receptacle {
    */
   Receptacle(ComponentContext context, String name, String interface_name,
     boolean is_multiplex) {
+    if (context == null) {
+      throw new IllegalArgumentException(
+        "The component's context can't be null");
+    }
+    if (name == null) {
+      throw new IllegalArgumentException("The name can't be null");
+    }
+    if (interface_name == null) {
+      throw new IllegalArgumentException("The interface's name can't be null");
+    }
+
     this.myComponent = context;
     this.name = name;
     this.interface_name = interface_name;
@@ -84,6 +95,10 @@ public class Receptacle {
    */
   public synchronized int addConnection(org.omg.CORBA.Object obj)
     throws AlreadyConnected, ExceededConnectionLimit, InvalidConnection {
+    if (obj == null) {
+      throw new IllegalArgumentException("The connection can't be null");
+    }
+
     if ((!is_multiplex) && (getConnectionsSize() > 0)) {
       throw new AlreadyConnected();
     }

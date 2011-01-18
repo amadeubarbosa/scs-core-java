@@ -1,5 +1,6 @@
 package scs.core;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,9 +17,6 @@ public class ComponentContext {
   private ORB orb;
   private POA poa;
   private ComponentId componentId;
-
-  // facetDescs contain CORBA objects (field facet_ref)
-  // facets contain JAVA objects (servants)
   private Map<String, Facet> facets;
   private Map<String, Receptacle> receptacles;
 
@@ -39,15 +37,22 @@ public class ComponentContext {
    * @throws SCSException
    */
   public ComponentContext(ORB orb, POA poa, ComponentId id) throws SCSException {
-    if ((id == null) || (orb == null) || (poa == null)) {
-      throw new IllegalArgumentException();
+    if (orb == null) {
+      throw new IllegalArgumentException("The ORB can't be null");
+    }
+    if (poa == null) {
+      throw new IllegalArgumentException("The POA can't be null");
+    }
+    if (id == null) {
+      throw new IllegalArgumentException("The component's id can't be null");
     }
 
     this.orb = orb;
     this.poa = poa;
+    componentId = id;
+
     facets = new HashMap<String, Facet>();
     receptacles = new HashMap<String, Receptacle>();
-    componentId = id;
 
     addBasicFacets();
   }
@@ -61,24 +66,36 @@ public class ComponentContext {
       new IMetaInterfaceServant(this));
   }
 
-  public void checkForGetComponent(Class<?> c, String name) {
+  private static void checkForGetComponentMethod(Servant facet) {
     try {
-      c.getMethod("_get_component", (Class<?>[]) null);
+      Method getComponentMethod =
+        facet.getClass().getMethod("_get_component", (Class<?>[]) null);
+      if (getComponentMethod == null) {
+        //TODO: logar como warn que _get_component não foi definida.
+        /*
+         * System.err.println("_get_component nao foi definida para a classe " +
+         * name + "!");
+         */
+
+      }
     }
-    catch (Exception e) {
+    catch (NoSuchMethodException e) {
       //TODO: logar como warn que _get_component não foi definida.
       /*
        * System.err.println("_get_component nao foi definida para a classe " +
        * name + "!");
        */
     }
+    catch (SecurityException e) {
+      //TODO: logar erro.
+    }
   }
 
   private void deactivateFacet(Facet facet) throws SCSException {
     if (facet != null) {
       try {
-        poa.deactivate_object(poa
-          .reference_to_id(facet.getDescription().facet_ref));
+        poa
+          .deactivate_object(poa.reference_to_id(facet.getDescription().facet_ref));
       }
       catch (UserException e) {
         throw new SCSException(e);
@@ -92,7 +109,7 @@ public class ComponentContext {
 
   public void putFacet(String name, String interface_name, Servant servant)
     throws SCSException {
-    checkForGetComponent(servant.getClass(), name);
+    checkForGetComponentMethod(servant);
     try {
       Facet facet =
         new Facet(name, interface_name, poa.servant_to_reference(servant),
@@ -169,8 +186,8 @@ public class ComponentContext {
     Map<String, SCSException> errMsgs = new HashMap<String, SCSException>();
     for (Facet facet : facets.values()) {
       try {
-        poa.deactivate_object(poa
-          .reference_to_id(facet.getDescription().facet_ref));
+        poa
+          .deactivate_object(poa.reference_to_id(facet.getDescription().facet_ref));
       }
       catch (UserException e) {
         //TODO: logar erro ao desativar faceta como warn
@@ -185,6 +202,9 @@ public class ComponentContext {
   }
 
   public Facet getFacetByName(String name) {
+    if (name == null) {
+      throw new IllegalArgumentException("The facet's name can't be null");
+    }
     return facets.get(name);
   }
 
@@ -210,14 +230,18 @@ public class ComponentContext {
 
   /**
    * Returns a stringified version of the component's id, concatenating its name
-   * with the version numbers.
+   * with the version number and its platform spec.
    * 
-   * @return String The stringified ComponentId.
+   * @return The stringified component's id.
    */
-  public String stringifiedComponentId() {
-    return componentId.name + String.valueOf(componentId.major_version)
-      + String.valueOf(componentId.minor_version)
-      + String.valueOf(componentId.patch_version);
+  public String getComponentIdAsString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append(componentId.name);
+    builder.append(componentId.major_version);
+    builder.append(componentId.minor_version);
+    builder.append(componentId.patch_version);
+    builder.append(componentId.platform_spec);
+    return builder.toString();
   }
 
   /**

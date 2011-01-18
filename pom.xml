@@ -12,15 +12,25 @@
   
   <properties>
     <java.version>1.5</java.version>
-<!-- comentei pela ausencia de testes
     <junit.version>4.6</junit.version>
--->
     <jacorb.version>2.3.0</jacorb.version>
     <source.encoding>ISO-8859-1</source.encoding>
   </properties>
 
   <build>
     <sourceDirectory>src</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>resources</directory>
+      </resource>
+    </resources>
+
+    <testSourceDirectory>test/src</testSourceDirectory>
+    <testResources>
+      <testResource>
+        <directory>test/resources</directory>
+      </testResource>
+    </testResources>
 
     <plugins>
       <plugin>
@@ -57,13 +67,11 @@
       <version>${jacorb.version}</version>
     </dependency>
 
-<!-- comentei pela ausencia de testes
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
--->
   </dependencies>
 </project>

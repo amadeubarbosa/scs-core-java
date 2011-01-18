@@ -17,7 +17,7 @@ public final class Facet {
   private org.omg.CORBA.Object facet_ref;
   private Servant servant;
 
-  public Facet(String name, String interface_name,
+  Facet(String name, String interface_name,
     org.omg.CORBA.Object facet_ref, Servant servant) {
     this.name = name;
     this.interface_name = interface_name;
