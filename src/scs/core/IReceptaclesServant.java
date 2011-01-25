@@ -10,7 +10,7 @@ public class IReceptaclesServant extends IReceptaclesPOA {
    * Referência para o contexto do componente. O contexto provém facilidades
    * para acesso a dados compartilhados entre as diversas facetas
    */
-  protected ComponentContext myComponent;
+  private ComponentContext myComponent;
 
   /**
    * Construtor padrão que recebe o contexto do componente.
@@ -49,24 +49,20 @@ public class IReceptaclesServant extends IReceptaclesPOA {
    */
   public synchronized void disconnect(int id) throws InvalidConnection,
     NoConnection {
-    if (id < 0) {
+    if (id <= 0) {
       throw new InvalidConnection();
     }
 
-    ConnectionDescription connDesc = null;
+    boolean disconnected = false;
     for (Receptacle receptacle : myComponent.getReceptacles()) {
-      for (ConnectionDescription desc : receptacle.getConnections()) {
-        if (desc.id == id) {
-          connDesc = desc;
-          break;
-        }
-      }
-      if (connDesc != null) {
-        receptacle.removeConnection(connDesc);
-        return;
+      if (receptacle.removeConnection(id)) {
+        disconnected = true;
+        break;
       }
     }
-    throw new NoConnection();
+    if (!disconnected) {
+      throw new NoConnection();
+    }
   }
 
   /**

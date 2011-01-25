@@ -124,13 +124,24 @@ public class Receptacle {
    * Remove uma conexão pelo seu identificador
    * 
    * @param id Identificador da conexão
-   * @throws InvalidConnection
-   * @throws NoConnection
    */
-  public synchronized void removeConnection(ConnectionDescription desc)
-    throws NoConnection {
-    if (!connections.remove(desc)) {
-      throw new NoConnection();
+  public synchronized boolean removeConnection(int id) {
+    if (id <= 0) {
+      throw new IllegalArgumentException(
+        "The connection's id can't be less than zero");
     }
+    int connectionIndex = -1;
+    for (int i = 0; i < this.connections.size(); i++) {
+      ConnectionDescription connection = this.connections.get(i);
+      if (connection.id == id) {
+        connectionIndex = i;
+        break;
+      }
+    }
+    if (connectionIndex == -1) {
+      return false;
+    }
+    this.connections.remove(connectionIndex);
+    return true;
   }
 }

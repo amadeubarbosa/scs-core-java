@@ -14,7 +14,7 @@ import org.omg.PortableServer.POAHelper;
 
 import scs.core.exception.SCSException;
 
-public final class IReceptacleTest {
+public final class ReceptacleTest {
   private static ComponentContext context;
   private static String name;
   private static String interfaceName;
@@ -124,11 +124,24 @@ public final class IReceptacleTest {
     Receptacle receptacle =
       new Receptacle(context, name, interfaceName, multiplex);
     POA poa = context.getPOA();
-    byte[] id =
-      poa.servant_to_id(new IReceptaclesServant(context));
+    byte[] id = poa.servant_to_id(new IReceptaclesServant(context));
     org.omg.CORBA.Object obj = poa.id_to_reference(id);
     receptacle.addConnection(obj);
     Assert.assertEquals(1, receptacle.getConnectionsSize());
     poa.deactivate_object(id);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void removeConnection() throws UserException {
+    Receptacle receptacle =
+      new Receptacle(context, name, interfaceName, multiplex);
+    receptacle.removeConnection(0);
+  }
+
+  @Test
+  public void removeConnection2() throws UserException {
+    Receptacle receptacle =
+      new Receptacle(context, name, interfaceName, multiplex);
+    Assert.assertFalse(receptacle.removeConnection(1));
   }
 }
