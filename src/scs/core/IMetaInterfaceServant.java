@@ -1,6 +1,7 @@
 package scs.core;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Servant da interface IDL {@link IMetaInterface}. Implementa as
@@ -36,14 +37,12 @@ public class IMetaInterfaceServant extends scs.core.IMetaInterfacePOA {
    */
   public FacetDescription[] getFacets() {
     Collection<Facet> facets = myComponent.getFacets();
-    FacetDescription[] descs = new FacetDescription[facets.size()];
-    int i = 0;
-    for (Facet facet : facets) {
-      descs[i] = facet.getDescription();
-      i++;
+    FacetDescription[] descriptions = new FacetDescription[facets.size()];
+    Iterator<Facet> facetsIterator = facets.iterator();
+    for (int i = 0; i < descriptions.length; i++) {
+      descriptions[i] = facetsIterator.next().getDescription();
     }
-
-    return descs;
+    return descriptions;
   }
 
   /**
@@ -54,9 +53,11 @@ public class IMetaInterfaceServant extends scs.core.IMetaInterfacePOA {
   public FacetDescription[] getFacetsByName(String[] names) throws InvalidName {
     FacetDescription[] facets = new FacetDescription[names.length];
     for (int i = 0; i < names.length; i++) {
-      facets[i] = myComponent.getFacetByName(names[i]).getDescription();
-      if (facets[i] == null)
+      Facet facet = myComponent.getFacetByName(names[i]);
+      if (facet == null) {
         throw new InvalidName(names[i]);
+      }
+      facets[i] = facet.getDescription();
     }
     return facets;
   }
@@ -68,15 +69,13 @@ public class IMetaInterfaceServant extends scs.core.IMetaInterfacePOA {
    */
   public ReceptacleDescription[] getReceptacles() {
     Collection<Receptacle> receptacles = myComponent.getReceptacles();
-    ReceptacleDescription[] descs =
+    ReceptacleDescription[] descriptions =
       new ReceptacleDescription[receptacles.size()];
-    int i = 0;
-    for (Receptacle receptacle : receptacles) {
-      descs[i] = receptacle.getDescription();
-      i++;
+    Iterator<Receptacle> receptaclesIterator = receptacles.iterator();
+    for (int i = 0; i < descriptions.length; i++) {
+      descriptions[i] = receptaclesIterator.next().getDescription();
     }
-
-    return descs;
+    return descriptions;
   }
 
   /**
@@ -90,10 +89,11 @@ public class IMetaInterfaceServant extends scs.core.IMetaInterfacePOA {
     ReceptacleDescription[] receptacles =
       new ReceptacleDescription[names.length];
     for (int i = 0; i < names.length; i++) {
-      receptacles[i] =
-        myComponent.getReceptacleByName(names[i]).getDescription();
-      if (receptacles[i] == null)
+      Receptacle receptacle = myComponent.getReceptacleByName(names[i]);
+      if (receptacle == null) {
         throw new InvalidName(names[i]);
+      }
+      receptacles[i] = receptacle.getDescription();
     }
     return receptacles;
   }

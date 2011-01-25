@@ -13,15 +13,28 @@ import org.omg.PortableServer.Servant;
  */
 public final class Facet {
   private String name;
-  private String interface_name;
-  private org.omg.CORBA.Object facet_ref;
+  private String interfaceName;
+  private org.omg.CORBA.Object reference;
   private Servant servant;
 
-  Facet(String name, String interface_name,
-    org.omg.CORBA.Object facet_ref, Servant servant) {
+  Facet(String name, String interfaceName, org.omg.CORBA.Object referece,
+    Servant servant) {
+    if (name == null) {
+      throw new IllegalArgumentException("The name can't be null");
+    }
+    if (interfaceName == null) {
+      throw new IllegalArgumentException("The interface's name can't be null");
+    }
+    if (referece == null) {
+      throw new IllegalArgumentException("The reference can't be null");
+    }
+    if (servant == null) {
+      throw new IllegalArgumentException("The servant can't be null");
+    }
+
     this.name = name;
-    this.interface_name = interface_name;
-    this.facet_ref = facet_ref;
+    this.interfaceName = interfaceName;
+    this.reference = referece;
     this.servant = servant;
   }
 
@@ -29,7 +42,7 @@ public final class Facet {
    * @return FacetDescription
    */
   public FacetDescription getDescription() {
-    return new FacetDescription(name, interface_name, facet_ref);
+    return new FacetDescription(name, interfaceName, reference);
   }
 
   public String getName() {
@@ -37,7 +50,11 @@ public final class Facet {
   }
 
   public String getInterfaceName() {
-    return interface_name;
+    return interfaceName;
+  }
+
+  public org.omg.CORBA.Object getReference() {
+    return reference;
   }
 
   /**

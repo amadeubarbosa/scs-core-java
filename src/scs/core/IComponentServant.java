@@ -46,15 +46,16 @@ public class IComponentServant extends IComponentPOA {
   /**
    * Obtém o objeto CORBA a partir do nome fictício da faceta
    * 
-   * @param facet Nome fictício da faceta
+   * @param facetName Nome fictício da faceta
    * @return Objeto CORBA que implementa a faceta
    * @see scs.core.IComponentOperations#getFacetByName(java.lang.String)
    */
-  public org.omg.CORBA.Object getFacetByName(String facet) {
-    FacetDescription desc = myComponent.getFacetByName(facet).getDescription();
-    if (desc != null)
-      return desc.facet_ref;
-    return null;
+  public org.omg.CORBA.Object getFacetByName(String facetName) {
+    Facet facet = myComponent.getFacetByName(facetName);
+    if (facet == null) {
+      return null;
+    }
+    return facet.getReference();
   }
 
   /**

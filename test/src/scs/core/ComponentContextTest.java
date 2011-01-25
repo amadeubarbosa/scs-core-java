@@ -115,6 +115,7 @@ public final class ComponentContextTest {
   public void getFacetByName() throws SCSException {
     ComponentContext component = new ComponentContext(orb, poa, componentId);
     component.getFacetByName(null);
+    Assert.assertNull(component.getFacetByName(""));
   }
 
   @Test
