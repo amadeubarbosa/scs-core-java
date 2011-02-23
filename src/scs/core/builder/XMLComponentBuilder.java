@@ -25,6 +25,11 @@ import scs.core.builder.exception.NoComponentIdException;
 import scs.core.exception.InvalidServantException;
 import scs.core.exception.SCSException;
 
+/**
+ * The purpose of this class is to build components based entirely on an XML
+ * description. The XML file must comply to the official XSD.
+ * 
+ */
 public class XMLComponentBuilder {
 
   private final String COMPONENT_ID_ELEMENT = "id";
@@ -42,6 +47,20 @@ public class XMLComponentBuilder {
   private final String RECEPTACLE_MULTIPLEX = "isMultiplex";
   private final String VERSION_DELIMITER = "\\.";
 
+  /**
+   * Builds a component, based on an XML file. The component will be composed of
+   * the basic facets, plus all facets and receptacles present on the XML file.
+   * 
+   * @param orb The orb that shall be associated to this component and its CORBA
+   *        objects.
+   * @param poa The poa that shall be used to activate and deactivate the
+   *        servants.
+   * @param f The XML file.
+   * @return A fully assembled component, with working facets, as described by
+   *         the XML file.
+   * @throws SCSException If any error occurs. The exception will contain the
+   *         more specific exception.
+   */
   public ComponentContext build(ORB orb, POA poa, File f) throws SCSException {
     ComponentContext context = null;
     try {
@@ -52,7 +71,7 @@ public class XMLComponentBuilder {
 
       SchemaFactory factory =
         SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-      // obtem xsd a partir do classpath
+      // obtains xsd file from classpath
       Schema schema =
         factory.newSchema(new File(getClass().getClassLoader().getResource(
           "ComponentDescription.xsd").toURI()));
@@ -82,12 +101,23 @@ public class XMLComponentBuilder {
     return context;
   }
 
+  /**
+   * Obtains the value from a tag.
+   * 
+   * @param tag The tag to get the value from.
+   * @param element The Element that contains the specified tag.
+   */
   private String getTagValue(String tag, Element element) {
     NodeList list = element.getElementsByTagName(tag).item(0).getChildNodes();
     Node value = list.item(0);
     return value.getNodeValue();
   }
 
+  /**
+   * Obtains the componentId from the document.
+   * 
+   * @param doc The document with the component specification.
+   */
   private ComponentId getComponentId(Document doc)
     throws NoComponentIdException {
     ComponentId id = new ComponentId();
@@ -114,6 +144,13 @@ public class XMLComponentBuilder {
     return id;
   }
 
+  /**
+   * Obtains the component context class from the document and loads the class.
+   * 
+   * @param doc The document with the component specification.
+   * @throws ClassNotFoundException If the specified class cannot be found in
+   *         the ContextClassLoader from the current thread.
+   */
   private Class<?> getComponentContextClass(Document doc)
     throws ClassNotFoundException {
     try {
@@ -131,6 +168,12 @@ public class XMLComponentBuilder {
     }
   }
 
+  /**
+   * Reads and puts all of the document's specified facets on the component.
+   * 
+   * @param doc The document with the component specification.
+   * @param context The component.
+   */
   private void readAndPutFacets(Document doc, ComponentContext context)
     throws ClassNotFoundException, IllegalArgumentException, SecurityException,
     InstantiationException, IllegalAccessException, InvocationTargetException,
@@ -158,6 +201,13 @@ public class XMLComponentBuilder {
     }
   }
 
+  /**
+   * Reads and puts all of the document's specified receptacles on the
+   * component.
+   * 
+   * @param doc The document with the component specification.
+   * @param context The component.
+   */
   private void readAndPutReceptacles(Document doc, ComponentContext context) {
     NodeList list = doc.getElementsByTagName(RECEPTACLE_ELEMENT);
     for (int i = 0; i < list.getLength(); i++) {
