@@ -35,7 +35,6 @@ public class StockMarketClient {
     orbProps.setProperty("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
     orbProps.setProperty("org.omg.CORBA.ORBSingletonClass",
       "org.jacorb.orb.ORBSingleton");
-    orbProps.setProperty("OAIAddr", "localhost");
 
     // ORB initialization.
     ORB orb = ORB.init(args, orbProps);
