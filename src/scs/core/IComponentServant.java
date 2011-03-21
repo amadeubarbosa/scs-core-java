@@ -1,37 +1,37 @@
 package scs.core;
 
 /**
- * Servant da interface IDL {@link IComponent}. Implementa as características
- * comuns a todos IComponent.
- * 
- * @author Carlos Eduardo
- * @author (comentários) Amadeu A. Barbosa Jr
+ * This class is the basic implementation of the IDL interface
+ * {@link IComponent}. The IComponent interface is the CORBA representation of a
+ * SCS component.
  */
 public class IComponentServant extends IComponentPOA {
 
   /**
-   * Referência para o contexto do componente. O contexto provém facilidades
-   * para acesso a dados compartilhados entre as diversas facetas
+   * Reference to the context of this facet, i.e., the local representation of
+   * its component.
    */
   protected ComponentContext myComponent;
 
   /**
-   * Construtor padrão usado pela infra-estrutura do SCS durante a instanciação
-   * automática das facetas
+   * Primary constructor.
    * 
-   * @param myComponent Contexto do componente contendo as descrições das portas
-   *        (facetas e receptáculos) e métodos de ajuda que facilitam o uso da
-   *        infra-estrutura
+   * @param myComponent The component that owns this facet instance.
    */
   public IComponentServant(ComponentContext myComponent) {
     this.myComponent = myComponent;
   }
 
   /**
-   * Obtém o objeto CORBA a partir do nome da interface IDL da faceta
+   * Provides the CORBA reference to one of the component's facets, by its
+   * interface. Since there can be more than one facet with the same interface,
+   * there's no guarantee on which one of these will be returned.
    * 
-   * @param facet_interface String da interface CORBA implementada pela faceta
-   * @return Objeto CORBA que implementa a faceta
+   * @param facet_interface The facet interface.
+   * @return The CORBA object that represents the facet. If there's more than
+   *         one facet with the specified interface, any one of them may be
+   *         returned. If there's no facet with the specified interface, null is
+   *         returned.
    * @see scs.core.IComponentOperations#getFacet(java.lang.String)
    */
   public org.omg.CORBA.Object getFacet(String facet_interface) {
@@ -44,10 +44,13 @@ public class IComponentServant extends IComponentPOA {
   }
 
   /**
-   * Obtém o objeto CORBA a partir do nome fictício da faceta
+   * Provides the CORBA reference to one of the component's facets, by its name.
+   * There cannot be more than one facet with the same name, so there's only one
+   * possible return value.
    * 
-   * @param facetName Nome fictício da faceta
-   * @return Objeto CORBA que implementa a faceta
+   * @param facetName The facet name.
+   * @return The CORBA object that represents the facet. If there's no facet
+   *         with the specified interface, null is returned.
    * @see scs.core.IComponentOperations#getFacetByName(java.lang.String)
    */
   public org.omg.CORBA.Object getFacetByName(String facetName) {
@@ -59,8 +62,8 @@ public class IComponentServant extends IComponentPOA {
   }
 
   /**
-   * Implementação vazia que pode ser sobrecarregada para permitir algum
-   * procedimento específico na inicialização do IComponent
+   * Empty implementation. This method should be overridden by the user if
+   * component initialization is required.
    * 
    * @see scs.core.IComponentOperations#startup()
    */
@@ -68,8 +71,8 @@ public class IComponentServant extends IComponentPOA {
   }
 
   /**
-   * Implementação vazia que pode ser sobrecarregada para permitir algum
-   * procedimento específico na finalização do IComponent
+   * Empty implementation. This method should be overridden by the user if
+   * component finalization is required.
    * 
    * @see scs.core.IComponentOperations#shutdown()
    */
@@ -77,16 +80,19 @@ public class IComponentServant extends IComponentPOA {
   }
 
   /**
-   * Obtém o identificador do componente
+   * Provides the component's ComponentId. ComponentId's aren't instance
+   * identifiers; they specify a component's name, version and platform
+   * specification.
    * 
-   * @return Identificador do componente
+   * @return The ComponentId.
    */
   public ComponentId getComponentId() {
     return myComponent.getComponentId();
   }
 
   /**
-   * Retorna a referência para a faceta IComponent. Específico do JACORB.
+   * Provides the reference to the most basic facet of the component,
+   * IComponent.
    */
   @Override
   public org.omg.CORBA.Object _get_component() {

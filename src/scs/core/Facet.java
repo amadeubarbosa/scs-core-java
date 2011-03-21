@@ -3,18 +3,32 @@ package scs.core;
 import org.omg.PortableServer.Servant;
 
 /**
+ * This class holds all the metadata pertinent to a facet, and represents it
+ * locally.
  * 
- * Não colocamos um campo FacetDescription direto pois a classe tem os campos
- * públicos. O getter forneceria a classe que poderia ter seus dados
- * modificados.
- * 
- * @author cadu
- * 
+ * It doesn't maintain a FacetDescription directly because the FacetDescription
+ * is an automatically generated class. The generated code sets all of its
+ * fields as public but these fields should not be manipulated freely.
  */
 public final class Facet {
+  /**
+   * The name of the facet, which acts as its identifier within the component.
+   */
   private String name;
+
+  /**
+   * The IDL interface that this facet represents.
+   */
   private String interfaceName;
+
+  /**
+   * The CORBA object.
+   */
   private org.omg.CORBA.Object reference;
+
+  /**
+   * The Servant instance that implements the interface.
+   */
   private Servant servant;
 
   Facet(String name, String interfaceName, org.omg.CORBA.Object referece,
@@ -39,26 +53,46 @@ public final class Facet {
   }
 
   /**
-   * @return FacetDescription
+   * Provides the IDL structure FacetDescription of this facet.
+   * 
+   * @return FacetDescription The description.
    */
   public FacetDescription getDescription() {
     return new FacetDescription(name, interfaceName, reference);
   }
 
+  /**
+   * Provides the name of this facet.
+   * 
+   * @return The facet name.
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Provides the interface of this facet.
+   * 
+   * @return The facet interface.
+   */
   public String getInterfaceName() {
     return interfaceName;
   }
 
+  /**
+   * Provides the CORBA reference of this facet, as a CORBA object.
+   * 
+   * @return The CORBA object.
+   */
   public org.omg.CORBA.Object getReference() {
     return reference;
   }
 
   /**
-   * @return Servant
+   * Provides the Servant instance of this facet, which is the Java class that
+   * implements the facet interface.
+   * 
+   * @return Servant The Java Servant.
    */
   public Servant getServant() {
     return servant;

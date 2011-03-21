@@ -4,35 +4,31 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Servant da interface IDL {@link IMetaInterface}. Implementa as
- * características comuns a todos IMetaInterface.
- * 
- * @author Eduardo Fonseca/Luiz Marques
- * 
+ * This class is the basic implementation of the IDL interface
+ * {@link IMetaInterface}. The IMetaInterface interface provides access to the
+ * component's metadata, acting as an introspection facet.
  */
 public class IMetaInterfaceServant extends scs.core.IMetaInterfacePOA {
 
   /**
-   * Referência para o contexto do componente. O contexto provém facilidades
-   * para acesso a dados compartilhados entre as diversas facetas
+   * Reference to the context of this facet, i.e., the local representation of
+   * its component.
    */
   protected ComponentContext myComponent;
 
   /**
-   * Construtor padrão usado pela infra-estrutura do SCS durante a instanciação
-   * automática das facetas
+   * Primary constructor.
    * 
-   * @param myComponent Contexto do componente contendo as descrições das portas
-   *        (facetas e receptáculos) e métodos de ajuda que facilitam o uso da
-   *        infra-estrutura
+   * @param myComponent The component that owns this facet instance.
    */
   public IMetaInterfaceServant(ComponentContext myComponent) {
     this.myComponent = myComponent;
   }
 
   /**
-   * Listagem das descrições de facetas
+   * Provides CORBA references and metadata of all of the component's facets.
    * 
+   * @return An array with the facets metadata.
    * @see IMetaInterfaceOperations#getFacets()
    */
   public FacetDescription[] getFacets() {
@@ -46,9 +42,12 @@ public class IMetaInterfaceServant extends scs.core.IMetaInterfacePOA {
   }
 
   /**
-   * Busca de descrições de facetas a partir de uma lista de nomes fictícios
+   * Provides CORBA references and metadata of some of the component's facets,
+   * specified by their names.
    * 
-   * @see IMetaInterfaceOperations#getFacetsByName(String[])
+   * @param names The names of the desired facets.
+   * @return An array with the specified facets metadata.
+   * @see IMetaInterfaceOperations#getFacetsByName(String[] names)
    */
   public FacetDescription[] getFacetsByName(String[] names) throws InvalidName {
     FacetDescription[] facets = new FacetDescription[names.length];
@@ -63,8 +62,9 @@ public class IMetaInterfaceServant extends scs.core.IMetaInterfacePOA {
   }
 
   /**
-   * Listagem de todas descrições de receptáculos
+   * Provides metadata of all of the component's receptacles.
    * 
+   * @return An array with the receptacles metadata.
    * @see IMetaInterfaceOperations#getReceptacles()
    */
   public ReceptacleDescription[] getReceptacles() {
@@ -79,10 +79,12 @@ public class IMetaInterfaceServant extends scs.core.IMetaInterfacePOA {
   }
 
   /**
-   * Busca de descrições de receptáculos a partir de uma lista de nomes
-   * fictícios
+   * Provides metadata of some of the component's receptacles, specified by
+   * their names.
    * 
-   * @see IMetaInterfaceOperations#getReceptaclesByName(String[])
+   * @param names The names of the desired receptacles.
+   * @return An array with the specified receptacles metadata.
+   * @see IMetaInterfaceOperations#getReceptaclesByName(String[] names)
    */
   public ReceptacleDescription[] getReceptaclesByName(String[] names)
     throws InvalidName {
@@ -99,7 +101,8 @@ public class IMetaInterfaceServant extends scs.core.IMetaInterfacePOA {
   }
 
   /**
-   * Retorna a referência para a faceta IComponent. Específico do JACORB.
+   * Provides the reference to the most basic facet of the component,
+   * IComponent.
    */
   @Override
   public org.omg.CORBA.Object _get_component() {

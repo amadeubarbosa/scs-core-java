@@ -1,35 +1,42 @@
 package scs.core;
 
 /**
- * Servant da interface IDL {@link IReceptacles}. Implementa as características
- * comuns a todos IReceptacles.
+ * This class is the basic implementation of the IDL interface
+ * {@link IReceptacles}. The IReceptacle interface provides access to and
+ * manipulation of the component's receptacles.
  */
 public class IReceptaclesServant extends IReceptaclesPOA {
 
   /**
-   * Referência para o contexto do componente. O contexto provém facilidades
-   * para acesso a dados compartilhados entre as diversas facetas
+   * Reference to the context of this facet, i.e., the local representation of
+   * its component.
    */
   private ComponentContext myComponent;
 
   /**
-   * Construtor padrão que recebe o contexto do componente.
+   * Primary constructor.
    * 
-   * @param myComponent Contexto do componente contendo as descrições das portas
-   *        (facetas e receptáculos) e métodos de ajuda que facilitam o uso da
-   *        infra-estrutura
+   * @param myComponent The component that owns this facet instance.
    */
   public IReceptaclesServant(ComponentContext myComponent) {
     this.myComponent = myComponent;
   }
 
   /**
-   * Método para conectar um objeto provedor de serviço no receptáculo
+   * Connects a remote facet to a receptacle. The facet must implement the
+   * interface specified by the receptacle.
    * 
-   * @param receptacle Nome fictício do receptáculo
-   * @param obj Referência para o objeto CORBA que implementa o serviço
-   * @return Inteiro identificador da conexão
-   * 
+   * @param receptacle The receptacle name.
+   * @param obj The remote facet reference.
+   * @return The connection identifier. It's valid for the entire component, not
+   *         for a specific receptacle.
+   * @throws InvalidName If there's no receptacle with the specified name.
+   * @throws InvalidConnection If the facet object does not implement the
+   *         receptacle's specified interface.
+   * @throws AlreadyConnected If the receptacle supports only one connection and
+   *         is already connected.
+   * @throws ExceededConnectionLimit If the receptacle is multiplex and the
+   *         maximum number of connections was already reached.
    * @see IReceptaclesOperations#connect(String, org.omg.CORBA.Object)
    */
   public synchronized int connect(String receptacle, org.omg.CORBA.Object obj)
@@ -43,9 +50,13 @@ public class IReceptaclesServant extends IReceptaclesPOA {
   }
 
   /**
-   * Método para desconectar um provedor de serviço do receptáculo
+   * Disconnects a remote facet from a receptacle. There's no need to specify
+   * the receptacle.
    * 
-   * @param id Inteiro identificador da conexão
+   * @param id The connection identifier.
+   * @throws InvalidConnection If the connection identifier is invalid, i.e.,
+   *         less than or equal to zero.
+   * @throws NoConnection If the provided connection identifier does not exist.
    */
   public synchronized void disconnect(int id) throws InvalidConnection,
     NoConnection {
@@ -66,10 +77,11 @@ public class IReceptaclesServant extends IReceptaclesPOA {
   }
 
   /**
-   * Listagem de descrições da conexões ativas
+   * Provides metadata about all connections of a specified receptacle.
    * 
-   * @param receptacle Nome fictício do receptáculo
-   * @return Vetor com as descrições das conexões válidas para o receptáculo
+   * @param receptacle The receptacle name.
+   * @return An array with the connections metadata.
+   * @throws InvalidName If the specified receptacle does not exist.
    * @see IReceptaclesOperations#getConnections(String)
    */
   public synchronized ConnectionDescription[] getConnections(String receptacle)
@@ -81,7 +93,8 @@ public class IReceptaclesServant extends IReceptaclesPOA {
   }
 
   /**
-   * Retorna a referência para a faceta IComponent. Específico do JACORB.
+   * Provides the reference to the most basic facet of the component,
+   * IComponent.
    */
   @Override
   public org.omg.CORBA.Object _get_component() {

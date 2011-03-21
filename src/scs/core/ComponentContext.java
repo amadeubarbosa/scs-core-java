@@ -13,6 +13,17 @@ import org.omg.PortableServer.Servant;
 
 import scs.core.exception.SCSException;
 
+/**
+ * This class is the local representation of a SCS component. Its concept
+ * doesn't exist in the CORBA environment. As such, an instance of this class is
+ * considered a local instance of a component and gathers all of its facets,
+ * receptacles and meta-data. It also holds references to the ORB and POA used
+ * to create and activate its facets.
+ * 
+ * Specifically in Java, this class is also responsible for generating
+ * connection id's for receptacles.
+ * 
+ */
 public class ComponentContext {
   private ORB orb;
   private POA poa;
@@ -21,20 +32,34 @@ public class ComponentContext {
   private Map<String, Receptacle> receptacles;
 
   /**
-   * Contador para gerar o ID da conexao (por instancia de componente)
+   * Counter used to generate connection id's. Connection id's are valid per
+   * component, not per receptacle.
    */
   private int currentConnectionId = 0;
 
   /**
-   * Limite de conexões por componente
+   * Limit of concurrent connections, per component. This'll probably be removed
+   * in the next version!
    */
   public final int CONNECTION_LIMIT = 100;
 
   /**
-   * Method that serves as a factory for the component.
+   * Primary constructor. The returned component instance will always have the
+   * three basic facets (IComponent, IReceptacles, IMetaInterface) instantiated.
+   * If the user wishes to use his own implementation of one of these facets,
+   * it's possible to replace them via the putFacet method. Other facets and
+   * receptacles can also be added.
    * 
-   * @return A new component
-   * @throws SCSException
+   * The returned instance of this class is considered a new SCS component
+   * instance.
+   * 
+   * @param orb The ORB to be used when creating this component instance's
+   *        facets.
+   * @param poa The POA to register this component instance's facets.
+   * @param id The type of this component.
+   * 
+   * @throws SCSException If any error occurs. The exception shall contain
+   *         another, more specific exception.
    */
   public ComponentContext(ORB orb, POA poa, ComponentId id) throws SCSException {
     if (orb == null) {
@@ -94,8 +119,8 @@ public class ComponentContext {
   private void deactivateFacet(Facet facet) throws SCSException {
     if (facet != null) {
       try {
-        poa
-          .deactivate_object(poa.reference_to_id(facet.getDescription().facet_ref));
+        poa.deactivate_object(poa
+          .reference_to_id(facet.getDescription().facet_ref));
       }
       catch (UserException e) {
         throw new SCSException(e);
@@ -103,10 +128,32 @@ public class ComponentContext {
     }
   }
 
+  /**
+   * Provides the ComponentId of this component instance. ComponentId's aren't
+   * instance identifiers; they specify a component's name, version and platform
+   * specification.
+   * 
+   * @return The component's ComponentId
+   */
   public ComponentId getComponentId() {
     return componentId;
   }
 
+  /**
+   * Adds a new facet to the component instance. This method activates the facet
+   * with the POA associated to the component. Also, it checks for the existence
+   * of the _get_component() method. If it's not implemented, a warning will be
+   * logged.
+   * 
+   * If the facet name already exists, the old facet will be replaced and
+   * deactivated within the component's POA.
+   * 
+   * @param name The facet's name. This acts as the facet identifier within the
+   *        component.
+   * @param interface_name The facet's IDL interface.
+   * @param servant The facet implementation, not yet activated within the POA.
+   * @throws SCSException If an UserException is catched.
+   */
   public void putFacet(String name, String interface_name, Servant servant)
     throws SCSException {
     checkForGetComponentMethod(servant);
@@ -128,6 +175,17 @@ public class ComponentContext {
     }
   }
 
+  /**
+   * Adds a new receptacle to the component instance.
+   * 
+   * If the receptacle name already exists, the old receptacle will be replaced.
+   * 
+   * @param name The receptacle's name. This acts as the receptacle identifier
+   *        within the component.
+   * @param interface_name The receptacle's IDL interface.
+   * @param is_multiplex True if the receptacle accepts more than one
+   *        connection, false otherwise.
+   */
   public void putReceptacle(String name, String interface_name,
     boolean is_multiplex) {
     Receptacle receptacle =
@@ -140,6 +198,13 @@ public class ComponentContext {
     }
   }
 
+  /**
+   * Removes a facet from the component. The facet is deactivated within the
+   * component's POA before being removed.
+   * 
+   * @param name The name of the facet to be removed.
+   * @throws SCSException If an UserException is catched.
+   */
   public void removeFacet(String name) throws SCSException {
     Facet facet = facets.get(name);
     deactivateFacet(facet);
@@ -147,6 +212,11 @@ public class ComponentContext {
     //TODO: logar que uma faceta foi removida
   }
 
+  /**
+   * Removes a receptacle from the component.
+   * 
+   * @param name The name of the receptacle to be removed.
+   */
   public void removeReceptacle(String name) {
     if (receptacles.containsKey(name)) {
       Receptacle receptacle = receptacles.remove(name);
@@ -156,6 +226,13 @@ public class ComponentContext {
     }
   }
 
+  /**
+   * Activates all of the component's facets.
+   * 
+   * @return A map indicating the facets that could not be activated. The map
+   *         uses the facet name as an identifier and the catched exception as
+   *         the value.
+   */
   public Map<String, SCSException> activateComponent() {
     Map<String, SCSException> errMsgs = new HashMap<String, SCSException>();
     for (Facet facet : facets.values()) {
@@ -171,23 +248,23 @@ public class ComponentContext {
   }
 
   /**
-   * TODO: descricao nao esta mais correta!!
+   * Deactivates all of the component's facets within the POA. The facet_ref
+   * references (from the FacetDescription metadata) remain non-null after the
+   * call, to maintain access to the Java object.
    * 
-   * Desativa todas as facetas do componente. As referências facet_ref continuam
-   * não-nulas após a chamada, para manter o acesso ao objeto Java. O usuário
-   * fica responsável por reativar as facetas quando considerar apropriado.
+   * The user is responsible for reactivating the facets when deemed
+   * appropriate.
    * 
-   * @param context Instância do componente.
-   * 
-   * @return Mapa contendo os nomes das facetas(chaves) e as mensagens de
-   *         erro(valores) das facetas que não puderam ser desativadas.
+   * @return A map indicating the facets that could not be deactivated. The map
+   *         uses the facet name as an identifier and the catched exception as
+   *         the value.
    */
   public Map<String, SCSException> deactivateComponent() {
     Map<String, SCSException> errMsgs = new HashMap<String, SCSException>();
     for (Facet facet : facets.values()) {
       try {
-        poa
-          .deactivate_object(poa.reference_to_id(facet.getDescription().facet_ref));
+        poa.deactivate_object(poa
+          .reference_to_id(facet.getDescription().facet_ref));
       }
       catch (UserException e) {
         //TODO: logar erro ao desativar faceta como warn
@@ -197,10 +274,22 @@ public class ComponentContext {
     return errMsgs;
   }
 
+  /**
+   * Provides metadata about the component's facets.
+   * 
+   * @return An unmodifiable collection with the facet metadata.
+   */
   public Collection<Facet> getFacets() {
     return Collections.unmodifiableCollection(facets.values());
   }
 
+  /**
+   * Provides metadata about a specific facet.
+   * 
+   * @param name The name of the facet.
+   * 
+   * @return The facet metadata.
+   */
   public Facet getFacetByName(String name) {
     if (name == null) {
       throw new IllegalArgumentException("The facet's name can't be null");
@@ -208,14 +297,31 @@ public class ComponentContext {
     return facets.get(name);
   }
 
+  /**
+   * Provides metadata about the component's receptacles.
+   * 
+   * @return An unmodifiable collection with the receptacle metadata.
+   */
   public Collection<Receptacle> getReceptacles() {
     return Collections.unmodifiableCollection(receptacles.values());
   }
 
+  /**
+   * Provides metadata about a specific receptacle.
+   * 
+   * @param name The name of the receptacle.
+   * 
+   * @return The receptacle metadata.
+   */
   public Receptacle getReceptacleByName(String name) {
     return receptacles.get(name);
   }
 
+  /**
+   * Provides a direct reference to the IComponent facet.
+   * 
+   * @return The IComponent facet.
+   */
   public IComponent getIComponent() {
     Facet facet = facets.get(IComponent.class.getSimpleName());
     if (facet != null) {
