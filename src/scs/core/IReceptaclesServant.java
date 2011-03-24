@@ -2,7 +2,7 @@ package scs.core;
 
 /**
  * This class is the basic implementation of the IDL interface
- * {@link IReceptacles}. The IReceptacle interface provides access to and
+ * {@link IReceptacles}. The IReceptacles interface provides access to and
  * manipulation of the component's receptacles.
  */
 public class IReceptaclesServant extends IReceptaclesPOA {
