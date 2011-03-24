@@ -47,6 +47,7 @@ public class IMetaInterfaceServant extends scs.core.IMetaInterfacePOA {
    * 
    * @param names The names of the desired facets.
    * @return An array with the specified facets metadata.
+   * @throws InvalidName If none of the specified names was found.
    * @see IMetaInterfaceOperations#getFacetsByName(String[] names)
    */
   public FacetDescription[] getFacetsByName(String[] names) throws InvalidName {
@@ -84,6 +85,7 @@ public class IMetaInterfaceServant extends scs.core.IMetaInterfacePOA {
    * 
    * @param names The names of the desired receptacles.
    * @return An array with the specified receptacles metadata.
+   * @throws InvalidName If none of the specified names was found.
    * @see IMetaInterfaceOperations#getReceptaclesByName(String[] names)
    */
   public ReceptacleDescription[] getReceptaclesByName(String[] names)
