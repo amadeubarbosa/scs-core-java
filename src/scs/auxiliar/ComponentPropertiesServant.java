@@ -38,6 +38,8 @@ public class ComponentPropertiesServant extends ComponentPropertiesPOA {
 
   /**
    * Provides an array with all the component's properties.
+   * 
+   * @return A sequence with all properties.
    */
   public Property[] getProperties() {
     return props.values().toArray(new Property[props.size()]);
@@ -46,6 +48,8 @@ public class ComponentPropertiesServant extends ComponentPropertiesPOA {
   /**
    * Given a property name, returns its value.
    * 
+   * @param name The property name.
+   * @return The desired property.
    * @throws UndefinedProperty If the property name does not exist.
    */
   public Property getProperty(String name) throws UndefinedProperty {
@@ -59,6 +63,7 @@ public class ComponentPropertiesServant extends ComponentPropertiesPOA {
    * Given a property name, sets a new value. If the property doesn't exist,
    * does nothing.
    * 
+   * @param prop The property with name and value to be set.
    * @throws ReadOnlyProperty If the property cannot be changed.
    */
   public void setProperty(Property prop) throws ReadOnlyProperty {
