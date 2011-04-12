@@ -65,7 +65,7 @@
           <compiler>jacorb</compiler>
           <sourceDirectory>idl</sourceDirectory>
           <includeDirs>
-            <includeDir>${env.IDLPATH_DIR}</includeDir>
+            <includeDir>${env.IDL_PATH}</includeDir>
           </includeDirs>
        </configuration>
       </plugin>
