@@ -97,4 +97,23 @@ public final class Facet {
   public Servant getServant() {
     return servant;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+
+    if (!obj.getClass().equals(this.getClass())) {
+      return false;
+    }
+
+    Facet facet = (Facet) obj;
+    return (this.name.equals(facet.name));
+  }
+
+  @Override
+  public int hashCode() {
+    return this.name.hashCode();
+  }
 }

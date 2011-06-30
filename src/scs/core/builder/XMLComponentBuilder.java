@@ -160,9 +160,6 @@ public class XMLComponentBuilder {
       return Class.forName(className, true, Thread.currentThread()
         .getContextClassLoader());
     }
-    catch (ClassNotFoundException e) {
-      throw e;
-    }
     catch (Exception e) {
       return null;
     }

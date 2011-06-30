@@ -25,6 +25,10 @@ import scs.core.exception.SCSException;
  * 
  */
 public class ComponentContext {
+  public static final String ICOMPONENT_FACET_NAME = "IComponent";
+  public static final String IRECEPTACLES_FACET_NAME = "IReceptacles";
+  public static final String IMETAINTERFACE_FACET_NAME = "IMetaInterface";
+
   private ORB orb;
   private POA poa;
   private ComponentId componentId;
@@ -150,25 +154,23 @@ public class ComponentContext {
    * 
    * @param name The facet's name. This acts as the facet identifier within the
    *        component.
-   * @param interface_name The facet's IDL interface.
+   * @param interfaceName The facet's IDL interface.
    * @param servant The facet implementation, not yet activated within the POA.
    * @throws SCSException If an UserException is catched.
    */
-  public void putFacet(String name, String interface_name, Servant servant)
+  public void putFacet(String name, String interfaceName, Servant servant)
     throws SCSException {
     checkForGetComponentMethod(servant);
+    Facet oldFacet = this.facets.get(name);
+    if (oldFacet != null) {
+      this.deactivateFacet(oldFacet);
+      //TODO: logar que uma faceta foi substituída
+    }
     try {
-      Facet facet =
-        new Facet(name, interface_name, poa.servant_to_reference(servant),
-          servant);
-      Facet existent = facets.put(name, facet);
-      if (existent != null) {
-        deactivateFacet(existent);
-        //TODO: logar que uma faceta foi substituída
-      }
-      else {
-        //TODO: logar que uma faceta foi adicionada
-      }
+      org.omg.CORBA.Object reference = poa.servant_to_reference(servant);
+      Facet facet = new Facet(name, interfaceName, reference, servant);
+      facets.put(name, facet);
+      //TODO: logar que uma faceta foi adicionada
     }
     catch (UserException e) {
       throw new SCSException(e);
@@ -182,14 +184,14 @@ public class ComponentContext {
    * 
    * @param name The receptacle's name. This acts as the receptacle identifier
    *        within the component.
-   * @param interface_name The receptacle's IDL interface.
-   * @param is_multiplex True if the receptacle accepts more than one
-   *        connection, false otherwise.
+   * @param interfaceName The receptacle's IDL interface.
+   * @param isMultiplex True if the receptacle accepts more than one connection,
+   *        false otherwise.
    */
-  public void putReceptacle(String name, String interface_name,
-    boolean is_multiplex) {
+  public void putReceptacle(String name, String interfaceName,
+    boolean isMultiplex) {
     Receptacle receptacle =
-      new Receptacle(this, name, interface_name, is_multiplex);
+      new Receptacle(this, name, interfaceName, isMultiplex);
     if (receptacles.put(name, receptacle) != null) {
       //TODO: logar que um receptaculo foi substituido e todas as suas conexões, perdidas
     }
@@ -207,6 +209,9 @@ public class ComponentContext {
    */
   public void removeFacet(String name) throws SCSException {
     Facet facet = facets.get(name);
+    if (facet == null) {
+      //TODO: logar que a faceta não existe      
+    }
     deactivateFacet(facet);
     facets.remove(name);
     //TODO: logar que uma faceta foi removida
@@ -314,6 +319,9 @@ public class ComponentContext {
    * @return The receptacle metadata.
    */
   public Receptacle getReceptacleByName(String name) {
+    if (name == null) {
+      throw new IllegalArgumentException("The receptacle's name can't be null");
+    }
     return receptacles.get(name);
   }
 
@@ -324,10 +332,10 @@ public class ComponentContext {
    */
   public IComponent getIComponent() {
     Facet facet = facets.get(IComponent.class.getSimpleName());
-    if (facet != null) {
-      return IComponentHelper.narrow(facet.getDescription().facet_ref);
+    if (facet == null) {
+      return null;
     }
-    return null;
+    return IComponentHelper.narrow(facet.getDescription().facet_ref);
   }
 
   int generateConnectionId() {
