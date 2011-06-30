@@ -1,6 +1,9 @@
 package scs.core;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import junit.framework.Assert;
 
@@ -115,7 +118,24 @@ public final class ComponentContextTest {
   public void getFacetByName() throws SCSException {
     ComponentContext component = new ComponentContext(orb, poa, componentId);
     component.getFacetByName(null);
+  }
+
+  @Test
+  public void getFacetByName2() throws SCSException {
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
     Assert.assertNull(component.getFacetByName(""));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void getReceptacleByName() throws SCSException {
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    component.getReceptacleByName(null);
+  }
+
+  @Test
+  public void getReceptacleByName2() throws SCSException {
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    Assert.assertNull(component.getReceptacleByName(""));
   }
 
   @Test
@@ -123,40 +143,129 @@ public final class ComponentContextTest {
     ComponentContext component = new ComponentContext(orb, poa, componentId);
     IComponent iComponent = component.getIComponent();
     Assert.assertNotNull(iComponent);
-    String iComponentFacetName = "IComponent";
-    Facet facet = component.getFacetByName(iComponentFacetName);
+    Facet facet =
+      component.getFacetByName(ComponentContext.ICOMPONENT_FACET_NAME);
     Assert.assertNotNull(facet);
     FacetDescription description = facet.getDescription();
     Assert.assertEquals(iComponent, description.facet_ref);
     Assert.assertEquals(IComponentHelper.id(), facet.getInterfaceName());
     Assert.assertEquals(IComponentHelper.id(), description.interface_name);
-    Assert.assertEquals(iComponentFacetName, facet.getName());
-    Assert.assertEquals(iComponentFacetName, description.name);
+    Assert
+      .assertEquals(ComponentContext.ICOMPONENT_FACET_NAME, facet.getName());
+    Assert.assertEquals(ComponentContext.ICOMPONENT_FACET_NAME,
+      description.name);
+  }
+
+  @Test
+  public void getIComponent2() throws SCSException {
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    IComponent iComponent = component.getIComponent();
+    component.removeFacet(ComponentContext.ICOMPONENT_FACET_NAME);
+    iComponent = component.getIComponent();
+    Assert.assertNull(iComponent);
   }
 
   @Test
   public void getIReceptacles() throws SCSException {
     ComponentContext component = new ComponentContext(orb, poa, componentId);
-    String iReceptaclesFacetName = "IReceptacles";
-    Facet facet = component.getFacetByName(iReceptaclesFacetName);
+    Facet facet =
+      component.getFacetByName(ComponentContext.IRECEPTACLES_FACET_NAME);
     Assert.assertNotNull(facet);
     FacetDescription description = facet.getDescription();
     Assert.assertEquals(IReceptaclesHelper.id(), facet.getInterfaceName());
     Assert.assertEquals(IReceptaclesHelper.id(), description.interface_name);
-    Assert.assertEquals(iReceptaclesFacetName, facet.getName());
-    Assert.assertEquals(iReceptaclesFacetName, description.name);
+    Assert.assertEquals(ComponentContext.IRECEPTACLES_FACET_NAME, facet
+      .getName());
+    Assert.assertEquals(ComponentContext.IRECEPTACLES_FACET_NAME,
+      description.name);
   }
 
   @Test
   public void getIMetaInterface() throws SCSException {
     ComponentContext component = new ComponentContext(orb, poa, componentId);
-    String iMetaInterfaceFacetName = "IMetaInterface";
-    Facet facet = component.getFacetByName(iMetaInterfaceFacetName);
+    Facet facet =
+      component.getFacetByName(ComponentContext.IMETAINTERFACE_FACET_NAME);
     Assert.assertNotNull(facet);
     FacetDescription description = facet.getDescription();
     Assert.assertEquals(IMetaInterfaceHelper.id(), facet.getInterfaceName());
     Assert.assertEquals(IMetaInterfaceHelper.id(), description.interface_name);
-    Assert.assertEquals(iMetaInterfaceFacetName, facet.getName());
-    Assert.assertEquals(iMetaInterfaceFacetName, description.name);
+    Assert.assertEquals(ComponentContext.IMETAINTERFACE_FACET_NAME, facet
+      .getName());
+    Assert.assertEquals(ComponentContext.IMETAINTERFACE_FACET_NAME,
+      description.name);
+  }
+
+  @Test
+  public void putFacet() throws SCSException {
+    String facetName = "nome";
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    component.putFacet(facetName, IComponentHelper.id(), new IComponentServant(
+      component));
+    Assert.assertNotNull(component.getFacetByName(facetName));
+  }
+
+  @Test
+  public void removeFacet() throws SCSException {
+    String facetName = "nome";
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    component.putFacet(facetName, IComponentHelper.id(), new IComponentServant(
+      component));
+    Assert.assertNotNull(component.getFacetByName(facetName));
+    component.removeFacet(facetName);
+    Assert.assertNull(component.getFacetByName("nome"));
+  }
+
+  @Test
+  public void removeFacet2() throws SCSException {
+    String facetName = "nome";
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    component.removeFacet(facetName);
+  }
+
+  @Test
+  public void putReceptacle() throws SCSException {
+    String receptacleName = "nome";
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    component.putReceptacle(receptacleName, IComponentHelper.id(), false);
+    Assert.assertNotNull(component.getReceptacleByName(receptacleName));
+  }
+
+  @Test
+  public void removeReceptacle() throws SCSException {
+    String receptacleName = "nome";
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    component.putReceptacle("nome", IComponentHelper.id(), false);
+    Assert.assertNotNull(component.getReceptacleByName(receptacleName));
+    component.removeReceptacle(receptacleName);
+    Assert.assertNull(component.getReceptacleByName(receptacleName));
+  }
+
+  @Test
+  public void activateComponent() throws SCSException {
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    Map<String, SCSException> errors = component.activateComponent();
+    Assert.assertEquals(component.getFacets().size(), errors.size());
+  }
+
+  @Test
+  public void activateComponent2() throws SCSException {
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    Collection<Facet> facets = component.getFacets();
+    Set<String> facetsNames = new HashSet<String>(facets.size());
+    for (Facet facet : facets) {
+      facetsNames.add(facet.getName());
+    }
+    for (String facetName : facetsNames) {
+      component.removeFacet(facetName);
+    }
+    Map<String, SCSException> errors = component.activateComponent();
+    Assert.assertEquals(0, errors.size());
+  }
+
+  @Test
+  public void deactivateComponent() throws SCSException {
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    Map<String, SCSException> errors = component.deactivateComponent();
+    Assert.assertEquals(0, errors.size());
   }
 }

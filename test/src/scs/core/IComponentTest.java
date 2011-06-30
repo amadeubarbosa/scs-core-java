@@ -14,6 +14,9 @@ import scs.core.exception.SCSException;
 
 public final class IComponentTest {
   private static final String COMPONENT_NAME = "componente";
+  private static final byte COMPONENT_MAJOR_VERSION = 1;
+  private static final byte COMPONENT_MINOR_VERSION = 0;
+  private static final byte COMPONENT_PATCH_VERSION = 0;
   private static final String COMPONENT_PLATFORM_SPEC = "java";
   private static ComponentContext context;
 
@@ -26,7 +29,8 @@ public final class IComponentTest {
     poa.the_POAManager().activate();
 
     ComponentId componentId =
-      new ComponentId(COMPONENT_NAME, (byte) 1, (byte) 0, (byte) 0,
+      new ComponentId(COMPONENT_NAME, COMPONENT_MAJOR_VERSION,
+        COMPONENT_MINOR_VERSION, COMPONENT_PATCH_VERSION,
         COMPONENT_PLATFORM_SPEC);
     context = new ComponentContext(orb, poa, componentId);
 
@@ -50,6 +54,9 @@ public final class IComponentTest {
     IComponent component = IComponentHelper.narrow(facet.getReference());
     ComponentId id = component.getComponentId();
     Assert.assertEquals(COMPONENT_NAME, id.name);
+    Assert.assertEquals(COMPONENT_MAJOR_VERSION, id.major_version);
+    Assert.assertEquals(COMPONENT_MINOR_VERSION, id.minor_version);
+    Assert.assertEquals(COMPONENT_PATCH_VERSION, id.patch_version);
     Assert.assertEquals(COMPONENT_PLATFORM_SPEC, id.platform_spec);
   }
 
