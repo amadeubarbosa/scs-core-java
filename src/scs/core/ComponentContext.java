@@ -11,6 +11,8 @@ import org.omg.CORBA.UserException;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
+import scs.core.exception.FacetAlreadyExists;
+import scs.core.exception.FacetDoesNotExist;
 import scs.core.exception.SCSException;
 
 /**
@@ -87,11 +89,11 @@ public class ComponentContext {
   }
 
   private void addBasicFacets() throws SCSException {
-    putFacet(IComponent.class.getSimpleName(), IComponentHelper.id(),
+    addFacet(IComponent.class.getSimpleName(), IComponentHelper.id(),
       new IComponentServant(this));
-    putFacet(IReceptacles.class.getSimpleName(), IReceptaclesHelper.id(),
+    addFacet(IReceptacles.class.getSimpleName(), IReceptaclesHelper.id(),
       new IReceptaclesServant(this));
-    putFacet(IMetaInterface.class.getSimpleName(), IMetaInterfaceHelper.id(),
+    addFacet(IMetaInterface.class.getSimpleName(), IMetaInterfaceHelper.id(),
       new IMetaInterfaceServant(this));
   }
 
@@ -158,14 +160,27 @@ public class ComponentContext {
    * @param servant The facet implementation, not yet activated within the POA.
    * @throws SCSException If an UserException is catched.
    */
-  public void putFacet(String name, String interfaceName, Servant servant)
+  public void addFacet(String name, String interfaceName, Servant servant)
     throws SCSException {
     checkForGetComponentMethod(servant);
     Facet oldFacet = this.facets.get(name);
     if (oldFacet != null) {
-      this.deactivateFacet(oldFacet);
-      //TODO: logar que uma faceta foi substituída
+      throw new FacetAlreadyExists(name);
     }
+    this.deactivateFacet(oldFacet);
+    this.putFacet(name, interfaceName, servant);
+  }
+
+  public void updateFacet(String name, Servant servant) throws SCSException {
+    Facet facet = this.facets.get(name);
+    if (facet == null) {
+      throw new FacetDoesNotExist(name);
+    }
+    this.putFacet(name, facet.getInterfaceName(), servant);
+  }
+
+  private void putFacet(String name, String interfaceName, Servant servant)
+    throws SCSException {
     try {
       org.omg.CORBA.Object reference = poa.servant_to_reference(servant);
       Facet facet = new Facet(name, interfaceName, reference, servant);

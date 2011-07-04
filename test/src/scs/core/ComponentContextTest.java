@@ -196,10 +196,10 @@ public final class ComponentContextTest {
   }
 
   @Test
-  public void putFacet() throws SCSException {
+  public void addFacet() throws SCSException {
     String facetName = "nome";
     ComponentContext component = new ComponentContext(orb, poa, componentId);
-    component.putFacet(facetName, IComponentHelper.id(), new IComponentServant(
+    component.addFacet(facetName, IComponentHelper.id(), new IComponentServant(
       component));
     Assert.assertNotNull(component.getFacetByName(facetName));
   }
@@ -208,7 +208,7 @@ public final class ComponentContextTest {
   public void removeFacet() throws SCSException {
     String facetName = "nome";
     ComponentContext component = new ComponentContext(orb, poa, componentId);
-    component.putFacet(facetName, IComponentHelper.id(), new IComponentServant(
+    component.addFacet(facetName, IComponentHelper.id(), new IComponentServant(
       component));
     Assert.assertNotNull(component.getFacetByName(facetName));
     component.removeFacet(facetName);

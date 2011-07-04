@@ -189,7 +189,7 @@ public class XMLComponentBuilder {
         Object servant =
           c.getConstructor(ComponentContext.class).newInstance(context);
         if (servant instanceof Servant) {
-          context.putFacet(name, interfaceName, (Servant) servant);
+          context.addFacet(name, interfaceName, (Servant) servant);
         }
         else {
           throw new InvalidServantException();
