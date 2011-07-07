@@ -1,9 +1,7 @@
 package scs.core;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import junit.framework.Assert;
 
@@ -17,6 +15,8 @@ import org.omg.PortableServer.POAHelper;
 
 import scs.core.exception.FacetAlreadyExists;
 import scs.core.exception.FacetDoesNotExist;
+import scs.core.exception.ReceptacleAlreadyExistsException;
+import scs.core.exception.ReceptacleDoesNotExistException;
 import scs.core.exception.SCSException;
 
 public final class ComponentContextTest {
@@ -245,21 +245,36 @@ public final class ComponentContextTest {
   }
 
   @Test
-  public void putReceptacle() throws SCSException {
+  public void addReceptacle() throws SCSException {
     String receptacleName = "nome";
     ComponentContext component = new ComponentContext(orb, poa, componentId);
-    component.putReceptacle(receptacleName, IComponentHelper.id(), false);
+    component.addReceptacle(receptacleName, IComponentHelper.id(), false);
     Assert.assertNotNull(component.getReceptacleByName(receptacleName));
+  }
+
+  @Test(expected = ReceptacleAlreadyExistsException.class)
+  public void addReceptacle2() throws SCSException {
+    String receptacleName = "nome";
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    component.addReceptacle(receptacleName, IComponentHelper.id(), false);
+    component.addReceptacle(receptacleName, IComponentHelper.id(), true);
   }
 
   @Test
   public void removeReceptacle() throws SCSException {
     String receptacleName = "nome";
     ComponentContext component = new ComponentContext(orb, poa, componentId);
-    component.putReceptacle("nome", IComponentHelper.id(), false);
+    component.addReceptacle(receptacleName, IComponentHelper.id(), false);
     Assert.assertNotNull(component.getReceptacleByName(receptacleName));
     component.removeReceptacle(receptacleName);
     Assert.assertNull(component.getReceptacleByName(receptacleName));
+  }
+
+  @Test(expected = ReceptacleDoesNotExistException.class)
+  public void removeReceptacle2() throws SCSException {
+    String receptacleName = "nome";
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    component.removeReceptacle(receptacleName);
   }
 
   @Test

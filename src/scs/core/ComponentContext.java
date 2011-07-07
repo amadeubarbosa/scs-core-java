@@ -11,6 +11,8 @@ import org.omg.PortableServer.Servant;
 
 import scs.core.exception.FacetAlreadyExists;
 import scs.core.exception.FacetDoesNotExist;
+import scs.core.exception.ReceptacleAlreadyExistsException;
+import scs.core.exception.ReceptacleDoesNotExistException;
 import scs.core.exception.SCSException;
 
 /**
@@ -51,7 +53,7 @@ public class ComponentContext {
    * Primary constructor. The returned component instance will always have the
    * three basic facets (IComponent, IReceptacles, IMetaInterface) instantiated.
    * If the user wishes to use his own implementation of one of these facets,
-   * it's possible to replace them via the putFacet method. Other facets and
+   * it's possible to replace them via the addFacet method. Other facets and
    * receptacles can also be added.
    * 
    * The returned instance of this class is considered a new SCS component
@@ -149,17 +151,17 @@ public class ComponentContext {
    * @param interfaceName The receptacle's IDL interface.
    * @param isMultiplex True if the receptacle accepts more than one connection,
    *        false otherwise.
+   * @throws ReceptacleAlreadyExistsException
    */
-  public void putReceptacle(String name, String interfaceName,
-    boolean isMultiplex) {
-    Receptacle receptacle =
-      new Receptacle(this, name, interfaceName, isMultiplex);
-    if (receptacles.put(name, receptacle) != null) {
-      //TODO: logar que um receptaculo foi substituido e todas as suas conexões, perdidas
+  public void addReceptacle(String name, String interfaceName,
+    boolean isMultiplex) throws ReceptacleAlreadyExistsException {
+    Receptacle receptacle = this.receptacles.get(name);
+    if (receptacle != null) {
+      throw new ReceptacleAlreadyExistsException(name);
     }
-    else {
-      //TODO: logar que um receptaculo foi adicionado
-    }
+    receptacle = new Receptacle(this, name, interfaceName, isMultiplex);
+    receptacles.put(name, receptacle);
+    //TODO: logar que um receptaculo foi adicionado
   }
 
   /**
@@ -182,14 +184,15 @@ public class ComponentContext {
    * Removes a receptacle from the component.
    * 
    * @param name The name of the receptacle to be removed.
+   * @throws ReceptacleDoesNotExistException
    */
-  public void removeReceptacle(String name) {
-    if (receptacles.containsKey(name)) {
-      Receptacle receptacle = receptacles.remove(name);
-      if (receptacle != null) {
-        //TODO: logar que um receptaculo foi removido e todas as suas conexões, perdidas
-      }
+  public void removeReceptacle(String name)
+    throws ReceptacleDoesNotExistException {
+    Receptacle receptacle = receptacles.remove(name);
+    if (receptacle == null) {
+      throw new ReceptacleDoesNotExistException(name);
     }
+    //TODO: logar que um receptaculo foi removido e todas as suas conexões, perdidas
   }
 
   /**

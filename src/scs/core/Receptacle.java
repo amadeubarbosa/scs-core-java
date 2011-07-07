@@ -204,4 +204,23 @@ public class Receptacle {
     this.connections.remove(connectionIndex);
     return true;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+
+    if (!obj.getClass().equals(this.getClass())) {
+      return false;
+    }
+
+    Receptacle receptacle = (Receptacle) obj;
+    return (this.name.equals(receptacle.name));
+  }
+
+  @Override
+  public int hashCode() {
+    return this.name.hashCode();
+  }
 }

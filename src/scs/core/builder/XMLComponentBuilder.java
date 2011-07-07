@@ -23,6 +23,7 @@ import scs.core.ComponentContext;
 import scs.core.ComponentId;
 import scs.core.builder.exception.NoComponentIdException;
 import scs.core.exception.InvalidServantException;
+import scs.core.exception.ReceptacleAlreadyExistsException;
 import scs.core.exception.SCSException;
 
 /**
@@ -206,8 +207,10 @@ public class XMLComponentBuilder {
    * 
    * @param doc The document with the component specification.
    * @param context The component.
+   * @throws ReceptacleAlreadyExistsException
    */
-  private void readAndPutReceptacles(Document doc, ComponentContext context) {
+  private void readAndPutReceptacles(Document doc, ComponentContext context)
+    throws ReceptacleAlreadyExistsException {
     NodeList list = doc.getElementsByTagName(RECEPTACLE_ELEMENT);
     for (int i = 0; i < list.getLength(); i++) {
       Node node = list.item(i);
@@ -217,7 +220,7 @@ public class XMLComponentBuilder {
         String interfaceName = getTagValue(RECEPTACLE_INTERFACE_NAME, element);
         boolean isMultiplex =
           Boolean.parseBoolean(getTagValue(RECEPTACLE_MULTIPLEX, element));
-        context.putReceptacle(name, interfaceName, isMultiplex);
+        context.addReceptacle(name, interfaceName, isMultiplex);
       }
     }
   }
