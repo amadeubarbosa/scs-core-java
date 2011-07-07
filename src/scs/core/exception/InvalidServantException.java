@@ -8,11 +8,8 @@ import org.omg.CORBA.UserException;
  * 
  */
 public class InvalidServantException extends SCSException {
-
-  /**
-   * Default constructor.
-   */
-  public InvalidServantException() {
+  public InvalidServantException(String message) {
+    super(message);
   }
 
   /**

@@ -8,11 +8,11 @@ import org.omg.CORBA.UserException;
  * 
  */
 public class SCSException extends Exception {
-
   /**
    * Default constructor.
    */
-  public SCSException() {
+  public SCSException(String message) {
+    super(message);
   }
 
   /**

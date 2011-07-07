@@ -1,6 +1,10 @@
 package scs.core;
 
+import org.omg.CORBA.UserException;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
+
+import scs.core.exception.SCSException;
 
 /**
  * This class holds all the metadata pertinent to a facet, and represents it
@@ -11,6 +15,7 @@ import org.omg.PortableServer.Servant;
  * fields as public but these fields should not be manipulated freely.
  */
 public final class Facet {
+  POA poa;
   /**
    * The name of the facet, which acts as its identifier within the component.
    */
@@ -22,34 +27,30 @@ public final class Facet {
   private String interfaceName;
 
   /**
+   * The Servant instance that implements the interface.
+   */
+  private Servant servant;
+  /**
    * The CORBA object.
    */
   private org.omg.CORBA.Object reference;
 
-  /**
-   * The Servant instance that implements the interface.
-   */
-  private Servant servant;
-
-  Facet(String name, String interfaceName, org.omg.CORBA.Object referece,
-    Servant servant) {
+  Facet(POA poa, String name, String interfaceName, Servant servant)
+    throws SCSException {
+    if (poa == null) {
+      throw new IllegalArgumentException("The poa can't be null");
+    }
     if (name == null) {
       throw new IllegalArgumentException("The name can't be null");
     }
     if (interfaceName == null) {
       throw new IllegalArgumentException("The interface's name can't be null");
     }
-    if (referece == null) {
-      throw new IllegalArgumentException("The reference can't be null");
-    }
-    if (servant == null) {
-      throw new IllegalArgumentException("The servant can't be null");
-    }
 
+    this.poa = poa;
     this.name = name;
     this.interfaceName = interfaceName;
-    this.reference = referece;
-    this.servant = servant;
+    this.setServant(servant);
   }
 
   /**
@@ -96,6 +97,46 @@ public final class Facet {
    */
   public Servant getServant() {
     return servant;
+  }
+
+  void setServant(Servant servant) throws SCSException {
+    if (servant == null) {
+      throw new IllegalArgumentException("The servant can't be null");
+    }
+    if (this.servant != null) {
+      this.deactivate();
+    }
+    this.servant = servant;
+    this.checkForGetComponent();
+    this.activate();
+  }
+
+  private void checkForGetComponent() {
+    try {
+      this.getClass().getMethod("_get_component");
+    }
+    catch (NoSuchMethodException e) {
+      //TODO: logar como warn que _get_component não foi definida.
+    }
+  }
+
+  void activate() throws SCSException {
+    try {
+      this.reference = this.poa.servant_to_reference(this.servant);
+    }
+    catch (UserException e) {
+      throw new SCSException(e);
+    }
+  }
+
+  void deactivate() throws SCSException {
+    try {
+      byte[] referenceId = this.poa.reference_to_id(this.reference);
+      this.poa.deactivate_object(referenceId);
+    }
+    catch (UserException e) {
+      throw new SCSException(e);
+    }
   }
 
   @Override

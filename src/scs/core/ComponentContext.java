@@ -1,13 +1,11 @@
 package scs.core;
 
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.UserException;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
@@ -97,43 +95,6 @@ public class ComponentContext {
       new IMetaInterfaceServant(this));
   }
 
-  private static void checkForGetComponentMethod(Servant facet) {
-    try {
-      Method getComponentMethod =
-        facet.getClass().getMethod("_get_component", (Class<?>[]) null);
-      if (getComponentMethod == null) {
-        //TODO: logar como warn que _get_component não foi definida.
-        /*
-         * System.err.println("_get_component nao foi definida para a classe " +
-         * name + "!");
-         */
-
-      }
-    }
-    catch (NoSuchMethodException e) {
-      //TODO: logar como warn que _get_component não foi definida.
-      /*
-       * System.err.println("_get_component nao foi definida para a classe " +
-       * name + "!");
-       */
-    }
-    catch (SecurityException e) {
-      //TODO: logar erro.
-    }
-  }
-
-  private void deactivateFacet(Facet facet) throws SCSException {
-    if (facet != null) {
-      try {
-        poa.deactivate_object(poa
-          .reference_to_id(facet.getDescription().facet_ref));
-      }
-      catch (UserException e) {
-        throw new SCSException(e);
-      }
-    }
-  }
-
   /**
    * Provides the ComponentId of this component instance. ComponentId's aren't
    * instance identifiers; they specify a component's name, version and platform
@@ -162,13 +123,12 @@ public class ComponentContext {
    */
   public void addFacet(String name, String interfaceName, Servant servant)
     throws SCSException {
-    checkForGetComponentMethod(servant);
-    Facet oldFacet = this.facets.get(name);
-    if (oldFacet != null) {
+    Facet facet = this.facets.get(name);
+    if (facet != null) {
       throw new FacetAlreadyExists(name);
     }
-    this.deactivateFacet(oldFacet);
-    this.putFacet(name, interfaceName, servant);
+    facet = new Facet(this.poa, name, interfaceName, servant);
+    facets.put(name, facet);
   }
 
   public void updateFacet(String name, Servant servant) throws SCSException {
@@ -176,20 +136,7 @@ public class ComponentContext {
     if (facet == null) {
       throw new FacetDoesNotExist(name);
     }
-    this.putFacet(name, facet.getInterfaceName(), servant);
-  }
-
-  private void putFacet(String name, String interfaceName, Servant servant)
-    throws SCSException {
-    try {
-      org.omg.CORBA.Object reference = poa.servant_to_reference(servant);
-      Facet facet = new Facet(name, interfaceName, reference, servant);
-      facets.put(name, facet);
-      //TODO: logar que uma faceta foi adicionada
-    }
-    catch (UserException e) {
-      throw new SCSException(e);
-    }
+    facet.setServant(servant);
   }
 
   /**
@@ -223,12 +170,11 @@ public class ComponentContext {
    * @throws SCSException If an UserException is catched.
    */
   public void removeFacet(String name) throws SCSException {
-    Facet facet = facets.get(name);
+    Facet facet = this.facets.remove(name);
     if (facet == null) {
-      //TODO: logar que a faceta não existe      
+      throw new FacetDoesNotExist(name);
     }
-    deactivateFacet(facet);
-    facets.remove(name);
+    facet.deactivate();
     //TODO: logar que uma faceta foi removida
   }
 
@@ -257,11 +203,11 @@ public class ComponentContext {
     Map<String, SCSException> errMsgs = new HashMap<String, SCSException>();
     for (Facet facet : facets.values()) {
       try {
-        this.poa.activate_object(facet.getServant());
+        facet.activate();
       }
-      catch (UserException e) {
+      catch (SCSException e) {
         //TODO: logar erro ao ativar faceta como warn
-        errMsgs.put(facet.getName(), new SCSException(e));
+        errMsgs.put(facet.getName(), e);
       }
     }
     return errMsgs;
@@ -283,12 +229,11 @@ public class ComponentContext {
     Map<String, SCSException> errMsgs = new HashMap<String, SCSException>();
     for (Facet facet : facets.values()) {
       try {
-        poa.deactivate_object(poa
-          .reference_to_id(facet.getDescription().facet_ref));
+        facet.deactivate();
       }
-      catch (UserException e) {
+      catch (SCSException e) {
         //TODO: logar erro ao desativar faceta como warn
-        errMsgs.put(facet.getName(), new SCSException(e));
+        errMsgs.put(facet.getName(), e);
       }
     }
     return errMsgs;

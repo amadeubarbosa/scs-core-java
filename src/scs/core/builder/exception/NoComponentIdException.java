@@ -10,11 +10,8 @@ import scs.core.exception.SCSException;
  * 
  */
 public class NoComponentIdException extends SCSException {
-
-  /**
-   * Default constructor.
-   */
-  public NoComponentIdException() {
+  public NoComponentIdException(String message) {
+    super(message);
   }
 
   /**

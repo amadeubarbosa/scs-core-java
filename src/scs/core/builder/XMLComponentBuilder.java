@@ -139,7 +139,8 @@ public class XMLComponentBuilder {
       }
     }
     if (!filled) {
-      throw new NoComponentIdException();
+      throw new NoComponentIdException(
+        "Não foi definido nenhum identificador para o componente");
     }
     return id;
   }
@@ -192,7 +193,8 @@ public class XMLComponentBuilder {
           context.addFacet(name, interfaceName, (Servant) servant);
         }
         else {
-          throw new InvalidServantException();
+          throw new InvalidServantException(String.format(
+            "O objeto informado como servant da faceta %s não é válido", name));
         }
       }
     }

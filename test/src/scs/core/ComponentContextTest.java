@@ -15,6 +15,8 @@ import org.omg.CORBA.UserException;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
+import scs.core.exception.FacetAlreadyExists;
+import scs.core.exception.FacetDoesNotExist;
 import scs.core.exception.SCSException;
 
 public final class ComponentContextTest {
@@ -204,6 +206,26 @@ public final class ComponentContextTest {
     Assert.assertNotNull(component.getFacetByName(facetName));
   }
 
+  @Test(expected = FacetAlreadyExists.class)
+  public void addFacet2() throws SCSException {
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    component.addFacet(ComponentContext.ICOMPONENT_FACET_NAME, IComponentHelper
+      .id(), new IComponentServant(component));
+  }
+
+  @Test
+  public void updateFacet() throws SCSException {
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    component.updateFacet(ComponentContext.ICOMPONENT_FACET_NAME,
+      new IComponentServant(component));
+  }
+
+  @Test(expected = FacetDoesNotExist.class)
+  public void updateFacet2() throws SCSException {
+    ComponentContext component = new ComponentContext(orb, poa, componentId);
+    component.updateFacet("nome", new IComponentServant(component));
+  }
+
   @Test
   public void removeFacet() throws SCSException {
     String facetName = "nome";
@@ -212,10 +234,10 @@ public final class ComponentContextTest {
       component));
     Assert.assertNotNull(component.getFacetByName(facetName));
     component.removeFacet(facetName);
-    Assert.assertNull(component.getFacetByName("nome"));
+    Assert.assertNull(component.getFacetByName(facetName));
   }
 
-  @Test
+  @Test(expected = FacetDoesNotExist.class)
   public void removeFacet2() throws SCSException {
     String facetName = "nome";
     ComponentContext component = new ComponentContext(orb, poa, componentId);
@@ -243,21 +265,6 @@ public final class ComponentContextTest {
   @Test
   public void activateComponent() throws SCSException {
     ComponentContext component = new ComponentContext(orb, poa, componentId);
-    Map<String, SCSException> errors = component.activateComponent();
-    Assert.assertEquals(component.getFacets().size(), errors.size());
-  }
-
-  @Test
-  public void activateComponent2() throws SCSException {
-    ComponentContext component = new ComponentContext(orb, poa, componentId);
-    Collection<Facet> facets = component.getFacets();
-    Set<String> facetsNames = new HashSet<String>(facets.size());
-    for (Facet facet : facets) {
-      facetsNames.add(facet.getName());
-    }
-    for (String facetName : facetsNames) {
-      component.removeFacet(facetName);
-    }
     Map<String, SCSException> errors = component.activateComponent();
     Assert.assertEquals(0, errors.size());
   }
