@@ -18,7 +18,6 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 import scs.core.ComponentId;
 import scs.core.IComponent;
-import scs.core.IComponentHelper;
 import scs.core.exception.SCSException;
 import scs.demos.stockmarket.servant.StockExchangeImpl;
 import scs.demos.stockmarket.servant.StockSellerIComponentImpl;
@@ -82,14 +81,14 @@ public class StockSellerServer {
     try {
       component = new StockSellerContext(orb, poa, cpId);
 
-      component.putFacet(IComponent.class.getSimpleName(), IComponentHelper
-        .id(), new StockSellerIComponentImpl(component));
-      component.putFacet(StockServer.class.getSimpleName(), StockServerHelper
+      component.updateFacet(IComponent.class.getSimpleName(),
+        new StockSellerIComponentImpl(component));
+      component.addFacet(StockServer.class.getSimpleName(), StockServerHelper
         .id(), new StockServerImpl(component));
-      component.putFacet(StockExchange.class.getSimpleName(),
+      component.addFacet(StockExchange.class.getSimpleName(),
         StockExchangeHelper.id(), new StockExchangeImpl(component));
 
-      component.putReceptacle(ExchangePrinter.class.getSimpleName(),
+      component.addReceptacle(ExchangePrinter.class.getSimpleName(),
         ExchangePrinterHelper.id(), true);
 
       // Writes the reference of the IComponent facet to a file

@@ -37,7 +37,7 @@ public class BasicServerApp {
       ComponentContext component = new ComponentContext(orb, poa, cpId);
 
       // adição das facetas
-      component.putFacet(FACET_HELLO, HelloHelper.id(), new HelloServant(
+      component.addFacet(FACET_HELLO, HelloHelper.id(), new HelloServant(
         component));
 
       // modificação do nome a ser exibido na mensagem da faceta Hello
