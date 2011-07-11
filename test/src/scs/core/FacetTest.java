@@ -107,19 +107,6 @@ public final class FacetTest {
   }
 
   @Test
-  public void activate() throws SCSException {
-    Facet facet = new Facet(context.getPOA(), name, interfaceName, servant);
-    facet.activate();
-  }
-
-  @Test
-  public void activate2() throws SCSException {
-    Facet facet = new Facet(context.getPOA(), name, interfaceName, servant);
-    facet.activate();
-    facet.activate();
-  }
-
-  @Test
   public void deactivate() throws SCSException {
     Facet facet = new Facet(context.getPOA(), name, interfaceName, servant);
     facet.deactivate();

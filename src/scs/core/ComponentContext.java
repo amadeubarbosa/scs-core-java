@@ -196,53 +196,6 @@ public class ComponentContext {
   }
 
   /**
-   * Activates all of the component's facets.
-   * 
-   * @return A map indicating the facets that could not be activated. The map
-   *         uses the facet name as an identifier and the catched exception as
-   *         the value.
-   */
-  public Map<String, SCSException> activateComponent() {
-    Map<String, SCSException> errMsgs = new HashMap<String, SCSException>();
-    for (Facet facet : facets.values()) {
-      try {
-        facet.activate();
-      }
-      catch (SCSException e) {
-        //TODO: logar erro ao ativar faceta como warn
-        errMsgs.put(facet.getName(), e);
-      }
-    }
-    return errMsgs;
-  }
-
-  /**
-   * Deactivates all of the component's facets within the POA. The facet_ref
-   * references (from the FacetDescription metadata) remain non-null after the
-   * call, to maintain access to the Java object.
-   * 
-   * The user is responsible for reactivating the facets when deemed
-   * appropriate.
-   * 
-   * @return A map indicating the facets that could not be deactivated. The map
-   *         uses the facet name as an identifier and the catched exception as
-   *         the value.
-   */
-  public Map<String, SCSException> deactivateComponent() {
-    Map<String, SCSException> errMsgs = new HashMap<String, SCSException>();
-    for (Facet facet : facets.values()) {
-      try {
-        facet.deactivate();
-      }
-      catch (SCSException e) {
-        //TODO: logar erro ao desativar faceta como warn
-        errMsgs.put(facet.getName(), e);
-      }
-    }
-    return errMsgs;
-  }
-
-  /**
    * Provides metadata about the component's facets.
    * 
    * @return An unmodifiable collection with the facet metadata.

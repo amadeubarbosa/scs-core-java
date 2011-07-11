@@ -120,7 +120,7 @@ public final class Facet {
     }
   }
 
-  void activate() throws SCSException {
+  private void activate() throws SCSException {
     try {
       this.reference = this.poa.servant_to_reference(this.servant);
     }

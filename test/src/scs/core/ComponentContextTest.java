@@ -276,18 +276,4 @@ public final class ComponentContextTest {
     ComponentContext component = new ComponentContext(orb, poa, componentId);
     component.removeReceptacle(receptacleName);
   }
-
-  @Test
-  public void activateComponent() throws SCSException {
-    ComponentContext component = new ComponentContext(orb, poa, componentId);
-    Map<String, SCSException> errors = component.activateComponent();
-    Assert.assertEquals(0, errors.size());
-  }
-
-  @Test
-  public void deactivateComponent() throws SCSException {
-    ComponentContext component = new ComponentContext(orb, poa, componentId);
-    Map<String, SCSException> errors = component.deactivateComponent();
-    Assert.assertEquals(0, errors.size());
-  }
 }
