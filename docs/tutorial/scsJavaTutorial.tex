@@ -14,6 +14,9 @@
 \setlength{\parskip}{6mm}
 \textheight=8.2in
 
+\def\lstlistingname{Código}
+\lstset{inputencoding=latin1}
+
 \newcommand{\code}[1]{\texttt{#1}}
 
 
@@ -23,12 +26,10 @@
 
 \begin{document} 
 
-\title{SCS-Java - Tutorial - Básico}
-\author{C. Augusto, R. Cerqueira \\
-        Tecgraf \\
-        Pontifícia Universidade Católica do Rio de Janeiro 
-        (PUC-Rio)\\
-        rcerq@inf.puc-rio.br}
+\title{Tutorial Básico do SDK Java do SCS}
+\author{Tecgraf \\
+        Pontifícia Universidade Católica do Rio de Janeiro (PUC-Rio)\\
+        scs-users@tecgraf.puc-rio.br}
 
 \date{}
 \maketitle
@@ -38,51 +39,58 @@
 
 \section{Introdução}
 
-	Este documento é um tutorial básico sobre a criação de componentes no modelo SCS v1.0.0, utilizando a versão Java da implementação padrão. Não serão encontradas aqui explicações sobre o modelo, as quais encontram-se em documentos específicos. Também não será abordado o uso de serviços específicos desenvolvidos para o auxílio ao uso do modelo, como a infra-estrutura de execução. Essas informações também podem ser obtidas em outros documentos.
-	A implementação SCS-Java baseia-se na versão 1.6 da máquina virtual Java e em CORBA v2.3, representada pelo ORB Jacorb que está incluso na implementação padrão. Este documento assume que o leitor é familiarizado a conceitos de desenvolvimento de \emph{software} baseado em componentes e à terminologia CORBA.
+	Este documento é um tutorial básico sobre a criação de componentes no modelo SCS v1.3.0, utilizando a versão Java da implementação padrão. Não serão encontradas aqui explicações sobre o modelo, as quais encontram-se em documentos específicos. Também não será abordado o uso de serviços específicos desenvolvidos para o auxílio ao uso do modelo, como a infra-estrutura de execução. Essas informações também podem ser obtidas em outros documentos.
+	A implementação Java baseia-se na versão 1.5 da máquina virtual Java e em CORBA v2.3, representada pelo ORB Jacorb v2.3.0 que está incluso na implementação padrão. Este documento assume que o leitor é familiarizado a conceitos de desenvolvimento de \emph{software} baseado em componentes e à terminologia CORBA.
 
 \section{Inicialização do ORB}
 
-Para a criação e execução do código de um componente, é necessária a inicialização prévia de um ORB, que deverá ser repassado a um \emph{ComponentBuilder}. Esse procedimento será demonstrado em mais detalhes adiante.
+Para a criação e execução do código de um componente, é necessária a inicialização prévia de um ORB.
+A instância de ORB criada será passada posteriormente para o construtor de um componente SCS. Esse procedimento é ilustrado no Código~\ref{lst:orb_init}.
 
-\section{Contexto de Componente}\label{contexto}
+\begin{labeledcode}[java]{orb_init}{Criação do ORB}
 
-Todo componente SCS-Java é representado por seu "contexto". Um Contexto de Componente (classe \emph{ComponentContext}) atua como um envólucro para as facetas e receptáculos de um componente SCS, e fornece acesso interno a essas mesmas facetas e receptáculos. Além disso, concentra também o acesso ao identificador do componente, ao objeto CORBA da faceta \emph{IComponent} e ao Construtor de Componentes utilizado para sua construção (mais detalhes na Seção \ref{builder}). Para tal, são disponibilizados alguns mapas e objetos:
-	
-\begin{itemize}
-	\item \code{Map<String, FacetDescription> FacetDescriptions}: Mapa para as descrições de facetas, definidas em IDL. O campo facet\_ref provê o objeto CORBA da faceta específica. Essas descrições são criadas automaticamente pelo Construtor de Componentes (ver Seção \ref{builder}). Indexado pelo nome da faceta.
-	\item \code{Map<String, ExtendedFacetDescription> ExtendedFacetDescriptions}: Mapa para as descrições extendidas de facetas. Essas descrições são fornecidas pelo criador do componente (exceto para as facetas básicas), e incluem a classe implementadora da faceta. Objetos de descrições extendidas são apenas Java, pois não estão definidos em IDL. Indexado pelo nome da faceta.
-	\item \code{Map<String, ReceptacleDescription> ReceptacleDescriptions}: Mapa para as descrições de receptáculos, definidas em IDL. Indexado pelo nome do receptáculo.
-	\item \code{Map<String, Object> Facets}: Mapa para os \emph{servants} das facetas, que são objetos Java. Indexado pelo nome da faceta.
-	\item \code{Map<String, Receptacle> Receptacles}: Mapa para os objetos Java que representam os receptáculos. Indexado pelo nome do receptáculo.
-	\item \code{ComponentId}: Identificador do componente, definido em IDL.
-	\item \code{ComponentBuilder}: Referência para o Construtor de Componentes utilizado para criar o contexto, facetas e receptáculos. O Construtor de Componentes, por sua vez, mantém referências para o ORB e o POA utilizados.
-\end{itemize}
+public static void main(String[] args) {
+  Properties props = new Properties();
+  ORB orb = ORB.init(args, props);
+}
 
+\end{labeledcode}
 
 \section{Passos Necessários à Criação de um Componente}
 
-Aqui serão descritos os passos mínimos necessários para a criação de um componente SCS-Java.
+Aqui serão descritos os passos mínimos necessários para a criação de um componente SCS.
 
-\subsection{Definição do Identificador do Componente}
+\subsection{Definição do Identificador do Componente}\label{sec:componentid}
 
-O identificador do componente é uma estrutura definida em IDL (scs.idl) chamada ComponentId, e representada em Java pela classe ComponentId. Um identificador de componente conta com os seguintes campos:
+O identificador do componente é uma estrutura definida em IDL (scs.idl) chamada \emph{ComponentId}, e representada em Java pela classe \emph{ComponentId}. Um identificador de componente conta com os seguintes campos:
 
 \begin{itemize}
 	\item \code{name}: Nome desejado para o componente.
-	\item \code{major\_version}: Octeto que define o número principal da versão do componente.
-	\item \code{minor\_version}: Octeto que define a versão secundária do componente, possivelmente relacionado a uma sub-versão da versão principal.
-	\item \code{patch\_version}: Octeto que define a versão de revisão do componente.
+	\item \code{major\_version}: Número que define a versão principal do componente.
+	\item \code{minor\_version}: Número que define a versão secundária do componente, possivelmente relacionado a uma sub-versão da versão principal.
+	\item \code{patch\_version}: Número que define a versão de revisão do componente.
 	\item \code{platform\_spec}: \emph{String} contendo quaisquer especificações de plataforma necessárias ao funcionamento do componente.
 \end{itemize}
 
 Os números de versão do componente, quando unificados, devem ser separados por pontos. Ou seja, um componente com versão principal 1, versão secundária 0 e versão de revisão 0 deve ser representado como a \emph{String} "1.0.0".
 
-\subsection{Criação de Facetas}
+\subsection{Criação do Componente Básico}
+
+Todo componente SCS é representado por seu "contexto".
+Um Contexto de Componente atua como um invólucro local para as facetas e receptáculos de um componente SCS.
+
+O contexto é implementado pela classe scs.core.ComponentContext e seu processo de instanciação engloba a criação de implementações padronizadas para as três facetas básicas: IComponent, IReceptacles e IMetaInterface.
+Caso o usuário precise utilizar uma implementação diferente de alguma dessas facetas, existe no contexto um método para a atualização de facetas chamado \emph{updateFacet}, descrito na Seção~\ref{lst:criacao_facetas}.
+
+Como o contexto é quem cria os objetos CORBA, é necessário que tenha acesso ao ORB logo em sua construção, para que possa inserir as facetas básicas e também facetas adicionais, posteriormente. Outro parâmetro obrigatório é o Identificador do Componente (\ref{sec:componentid}).
+
+Um exemplo de código para a criação de um componente básico pode ser visto no Código~\ref{lst:criacao_facetas}.
+
+\subsection{Criação de Facetas}\label{criacao_facetas}
 
 Facetas são interfaces CORBA, e devem ser implementadas por classes definidas pelo usuário, como exigido pelas definições Java desse padrão. No entanto, a implementação SCS-Java exige também que facetas implementem um construtor que receba um \emph{ComponentContext} (Contexto de Componentes). O Contexto pode ser utilizado para acessar outras facetas e o identificador do componente, entre outros dados, como descrito na Seção \ref{contexto}. Um exemplo pode ser conferido na Listagem~\ref{lst:faceta}.
 	
-\begin{labeledcode}[java]{faceta}{Implementação de uma Faceta MyFacet}
+\begin{labeledcode}[java]{criacao_facetas}{Implementação de uma Faceta MyFacet}
 public class MyFacetServant extends MyFacetPOA {
 
   private ComponentContext myComponent;
