@@ -39,13 +39,24 @@
 
 \section{Introdução}
 
-	Este documento é um tutorial básico sobre a criação de componentes no modelo SCS v1.3.0, utilizando a versão Java da implementação padrão. Não serão encontradas aqui explicações sobre o modelo, as quais encontram-se em documentos específicos. Também não será abordado o uso de serviços específicos desenvolvidos para o auxílio ao uso do modelo, como a infra-estrutura de execução. Essas informações também podem ser obtidas em outros documentos.
-	A implementação Java baseia-se na versão 1.5 da máquina virtual Java e em CORBA v2.3, representada pelo ORB Jacorb v2.3.0 que está incluso na implementação padrão. Este documento assume que o leitor é familiarizado a conceitos de desenvolvimento de \emph{software} baseado em componentes e à terminologia CORBA.
+	Este documento é um tutorial básico sobre a criação de componentes no modelo
+SCS v1.3.0, utilizando a versão Java da implementação padrão. Não serão
+encontradas aqui explicações sobre o modelo, as quais encontram-se em
+documentos específicos. Também não será abordado o uso de serviços específicos
+desenvolvidos para o auxílio ao uso do modelo, como a infra-estrutura de
+execução. Essas informações também podem ser obtidas em outros documentos.
+	A implementação Java baseia-se na versão 1.5 da máquina virtual Java e em CORBA
+v2.3, representada pelo ORB Jacorb v2.3.0 que está incluso na implementação
+padrão. Este documento assume que o leitor é familiarizado a conceitos de
+desenvolvimento de \emph{software} baseado em componentes e à terminologia
+CORBA.
 
 \section{Inicialização do ORB}
 
-Para a criação e execução do código de um componente, é necessária a inicialização prévia de um ORB.
-A instância de ORB criada será passada posteriormente para o construtor de um componente SCS. Esse procedimento é ilustrado no Código~\ref{lst:orb_init}.
+Para a criação e execução do código de um componente, é necessária a
+inicialização prévia de um ORB.
+A instância de ORB criada será passada posteriormente para o construtor de um
+componente SCS. Esse procedimento é ilustrado no Código~\ref{lst:orb_init}.
 
 \begin{labeledcode}[java]{orb_init}{Criação do ORB}
 
@@ -58,37 +69,61 @@ public static void main(String[] args) {
 
 \section{Passos Necessários à Criação de um Componente}
 
-Aqui serão descritos os passos mínimos necessários para a criação de um componente SCS.
+Aqui serão descritos os passos mínimos necessários para a criação de um
+componente SCS.
 
 \subsection{Definição do Identificador do Componente}\label{sec:componentid}
 
-O identificador do componente é uma estrutura definida em IDL (scs.idl) chamada \emph{ComponentId}, e representada em Java pela classe \emph{ComponentId}. Um identificador de componente conta com os seguintes campos:
+O identificador do componente é uma estrutura definida em IDL (scs.idl) chamada
+\emph{ComponentId}, e representada em Java pela classe \emph{ComponentId}. Um
+identificador de componente conta com os seguintes campos:
 
 \begin{itemize}
 	\item \code{name}: Nome desejado para o componente.
-	\item \code{major\_version}: Número que define a versão principal do componente.
-	\item \code{minor\_version}: Número que define a versão secundária do componente, possivelmente relacionado a uma sub-versão da versão principal.
-	\item \code{patch\_version}: Número que define a versão de revisão do componente.
-	\item \code{platform\_spec}: \emph{String} contendo quaisquer especificações de plataforma necessárias ao funcionamento do componente.
+	\item \code{major\_version}: Número que define a versão principal do
+componente.
+	\item \code{minor\_version}: Número que define a versão secundária do
+componente, possivelmente relacionado a uma sub-versão da versão principal.
+	\item \code{patch\_version}: Número que define a versão de revisão do
+componente.
+	\item \code{platform\_spec}: \emph{String} contendo quaisquer especificações de
+plataforma necessárias ao funcionamento do componente.
 \end{itemize}
 
-Os números de versão do componente, quando unificados, devem ser separados por pontos. Ou seja, um componente com versão principal 1, versão secundária 0 e versão de revisão 0 deve ser representado como a \emph{String} "1.0.0".
+Os números de versão do componente, quando unificados, devem ser separados por
+pontos. Ou seja, um componente com versão principal 1, versão secundária 0 e
+versão de revisão 0 deve ser representado como a \emph{String} "1.0.0".
 
 \subsection{Criação do Componente Básico}
 
 Todo componente SCS é representado por seu "contexto".
-Um Contexto de Componente atua como um invólucro local para as facetas e receptáculos de um componente SCS.
+Um Contexto de Componente atua como um invólucro local para as facetas e
+receptáculos de um componente SCS.
 
-O contexto é implementado pela classe scs.core.ComponentContext e seu processo de instanciação engloba a criação de implementações padronizadas para as três facetas básicas: IComponent, IReceptacles e IMetaInterface.
-Caso o usuário precise utilizar uma implementação diferente de alguma dessas facetas, existe no contexto um método para a atualização de facetas chamado \emph{updateFacet}, descrito na Seção~\ref{lst:criacao_facetas}.
+O contexto é implementado pela classe scs.core.ComponentContext e seu processo
+de instanciação engloba a criação de implementações padronizadas para as três
+facetas básicas: IComponent, IReceptacles e IMetaInterface.
+Caso o usuário precise utilizar uma implementação diferente de alguma dessas
+facetas, existe no contexto um método para a atualização de facetas chamado
+\emph{updateFacet}, descrito na Seção~\ref{lst:criacao_facetas}.
 
-Como o contexto é quem cria os objetos CORBA, é necessário que tenha acesso ao ORB logo em sua construção, para que possa inserir as facetas básicas e também facetas adicionais, posteriormente. Outro parâmetro obrigatório é o Identificador do Componente (\ref{sec:componentid}).
+Como o contexto é quem cria os objetos CORBA, é necessário que tenha acesso ao
+ORB logo em sua construção, para que possa inserir as facetas básicas e também
+facetas adicionais, posteriormente. Outro parâmetro obrigatório é o
+Identificador do Componente (\ref{sec:componentid}).
 
-Um exemplo de código para a criação de um componente básico pode ser visto no Código~\ref{lst:criacao_facetas}.
+Um exemplo de código para a criação de um componente básico pode ser visto no
+Código~\ref{lst:criacao_facetas}.
 
 \subsection{Criação de Facetas}\label{criacao_facetas}
 
-Facetas são interfaces CORBA, e devem ser implementadas por classes definidas pelo usuário, como exigido pelas definições Java desse padrão. No entanto, a implementação SCS-Java exige também que facetas implementem um construtor que receba um \emph{ComponentContext} (Contexto de Componentes). O Contexto pode ser utilizado para acessar outras facetas e o identificador do componente, entre outros dados, como descrito na Seção \ref{contexto}. Um exemplo pode ser conferido na Listagem~\ref{lst:faceta}.
+Facetas são interfaces CORBA, e devem ser implementadas por classes definidas
+pelo usuário, como exigido pelas definições Java desse padrão. No entanto, a
+implementação SCS-Java exige também que facetas implementem um construtor que
+receba um \emph{ComponentContext} (Contexto de Componentes). O Contexto pode
+ser utilizado para acessar outras facetas e o identificador do componente,
+entre outros dados, como descrito na Seção \ref{contexto}. Um exemplo pode ser
+conferido na Listagem~\ref{lst:faceta}.
 	
 \begin{labeledcode}[java]{criacao_facetas}{Implementação de uma Faceta MyFacet}
 public class MyFacetServant extends MyFacetPOA {
@@ -102,7 +137,12 @@ public class MyFacetServant extends MyFacetPOA {
 }
 \end{labeledcode}
 
-O SCS-Java exige ainda que facetas implementem o método \_get\_component() de CORBA, definido pelo Jacorb, mas o Contexto já fornece um método para suprir essa funcionalidade. Assim, a implementação torna-se trivial e deve ser sempre a mesma, que está exposta na Listagem~\ref{lst:_get_component}. Existem planos para que esse método seja inserido automaticamente em todas as facetas no futuro, no ato da instanciação do componente.
+O SCS-Java exige ainda que facetas implementem o método \_get\_component() de
+CORBA, definido pelo Jacorb, mas o Contexto já fornece um método para suprir
+essa funcionalidade. Assim, a implementação torna-se trivial e deve ser sempre
+a mesma, que está exposta na Listagem~\ref{lst:_get_component}. Existem planos
+para que esse método seja inserido automaticamente em todas as facetas no
+futuro, no ato da instanciação do componente.
 	
 \begin{labeledcode}[java]{_get_component}{O Método CORBA \_get\_component()}
 	@Override
@@ -115,19 +155,54 @@ Obviamente, facetas devem ainda implementar seus métodos definidos em IDL.
 
 \subsection{Utilização do Construtor de Componentes}\label{builder}
 
-O Construtor de Componentes fornece uma API para a criação ou "instanciação" de um novo componente. Por instância de componente, nos referimos a um Contexto de Componente com todas as suas facetas, receptáculos e objetos internos criados, e seus mapas preenchidos. O processo de instanciação engloba a criação de descrições de facetas, a instanciação das classes que implementam as facetas, a criação de objetos CORBA referentes às facetas e a criação de receptáculos.
+O Construtor de Componentes fornece uma API para a criação ou "instanciação" de
+um novo componente. Por instância de componente, nos referimos a um Contexto de
+Componente com todas as suas facetas, receptáculos e objetos internos criados,
+e seus mapas preenchidos. O processo de instanciação engloba a criação de
+descrições de facetas, a instanciação das classes que implementam as facetas, a
+criação de objetos CORBA referentes às facetas e a criação de receptáculos.
 
-Para realizar esse trabalho, é necessário informar ao Construtor de Componentes quais facetas e receptáculos fazem parte do componente. Esses dados são representados por descrições "estendidas" de facetas e descrições de receptáculos. As descrições estendidas de facetas recebem este nome pois já existe o termo \emph{FacetDescription} na IDL do modelo SCS. No entanto, o tipo \emph{ExtendedFacetDescription} não está definido em IDL, pois esta é uma classe existente somente na implementação SCS-Java. Descrições estendidas são compostas pelo nome da faceta, o nome da interface da faceta e o nome completo (incluindo pacote) da classe que a implementa, para que o objeto que representa a faceta possa ser instanciado.
+Para realizar esse trabalho, é necessário informar ao Construtor de Componentes
+quais facetas e receptáculos fazem parte do componente. Esses dados são
+representados por descrições "estendidas" de facetas e descrições de
+receptáculos. As descrições estendidas de facetas recebem este nome pois já
+existe o termo \emph{FacetDescription} na IDL do modelo SCS. No entanto, o tipo
+\emph{ExtendedFacetDescription} não está definido em IDL, pois esta é uma
+classe existente somente na implementação SCS-Java. Descrições estendidas são
+compostas pelo nome da faceta, o nome da interface da faceta e o nome completo
+(incluindo pacote) da classe que a implementa, para que o objeto que representa
+a faceta possa ser instanciado.
 
-Descrições de receptáculos são iguais às definidas em IDL, com o único detalhe de que, em sua criação, não é necessário fornecer o \emph{array connections}, podendo-se passar \emph{NULL}. Todo receptáculo é representado por uma instância da mesma classe, \emph{Receptacle}, a qual já está implementada.
+Descrições de receptáculos são iguais às definidas em IDL, com o único detalhe
+de que, em sua criação, não é necessário fornecer o \emph{array connections},
+podendo-se passar \emph{NULL}. Todo receptáculo é representado por uma
+instância da mesma classe, \emph{Receptacle}, a qual já está implementada.
 
-O método do Construtor de Componentes para a criação / instanciação de um novo componente chama-se \emph{newComponent}. Esse método recebe um \emph{array} de \emph{ExtendedFacetDescription}, um \emph{array} de \emph{ReceptacleDescription} e o identificador do componente. Em certos casos, pode ser importante para o componente que uma faceta seja carregada antes de outras. Por isso, o Construtor de Componentes instanciará as facetas na ordem do \emph{array}.
+O método do Construtor de Componentes para a criação / instanciação de um novo
+componente chama-se \emph{newComponent}. Esse método recebe um \emph{array} de
+\emph{ExtendedFacetDescription}, um \emph{array} de
+\emph{ReceptacleDescription} e o identificador do componente. Em certos casos,
+pode ser importante para o componente que uma faceta seja carregada antes de
+outras. Por isso, o Construtor de Componentes instanciará as facetas na ordem
+do \emph{array}.
 
-Não é necessário inserir as facetas básicas (IComponent, IReceptacles e IMetaInterface) no \emph{array} de \emph{ExtendedFacetDescription}. O Construtor automaticamente insere essas facetas e suas descrições no componente. Caso o usuário deseje utilizar uma implementação diferente de alguma dessas facetas, basta inserir a descrição apropriada que essa será utilizada no lugar da padrão.
+Não é necessário inserir as facetas básicas (IComponent, IReceptacles e
+IMetaInterface) no \emph{array} de \emph{ExtendedFacetDescription}. O
+Construtor automaticamente insere essas facetas e suas descrições no
+componente. Caso o usuário deseje utilizar uma implementação diferente de
+alguma dessas facetas, basta inserir a descrição apropriada que essa será
+utilizada no lugar da padrão.
 
-Um outro detalhe é que, como o Construtor cria os objetos CORBA, é necessário que tenha acesso ao ORB. Para que os componentes tenham acesso ao ORB e POA utilizados, o Construtor fornece métodos para o acesso a eles. Todo Contexto de Componente guarda uma referência para o Construtor que o criou, e assim facetas podem acessá-lo para obter uma referência ao ORB ou POA, conforme suas necessidades.
+Um outro detalhe é que, como o Construtor cria os objetos CORBA, é necessário
+que tenha acesso ao ORB. Para que os componentes tenham acesso ao ORB e POA
+utilizados, o Construtor fornece métodos para o acesso a eles. Todo Contexto de
+Componente guarda uma referência para o Construtor que o criou, e assim facetas
+podem acessá-lo para obter uma referência ao ORB ou POA, conforme suas
+necessidades.
 
-Um exemplo de código para a criação dos \emph{arrays} de descrições, identificador do componente e utilização da API pode ser visto na Listagem~\ref{lst:fillDescriptions}.
+Um exemplo de código para a criação dos \emph{arrays} de descrições,
+identificador do componente e utilização da API pode ser visto na
+Listagem~\ref{lst:fillDescriptions}.
 
 \begin{labeledcode}[java]{fillDescriptions}{Instanciação de um Novo Componente}
   ORB orb = ...; // referência para o ORB, já inicializado
@@ -151,17 +226,26 @@ Um exemplo de código para a criação dos \emph{arrays} de descrições, identificad
 
   // utilização da API
   ComponentBuilder builder = new ComponentBuilder(poa, orb);
-  ComponentContext newInstance = builder.newComponent(facetDescs, receptacleDescs,
+  ComponentContext newInstance = builder.newComponent(facetDescs,
+receptacleDescs,
     cpId);
 \end{labeledcode}
 
 \section{Exemplo Completo}
 
-Demonstraremos aqui o uso mais simples para um componente: apenas uma faceta além das três facetas básicas. Não será criado nenhum receptáculo, apesar da existência da faceta IReceptacles. Exemplos mais complexos poderão ser encontrados nas \emph{demos} do projeto.
+Demonstraremos aqui o uso mais simples para um componente: apenas uma faceta
+além das três facetas básicas. Não será criado nenhum receptáculo, apesar da
+existência da faceta IReceptacles. Exemplos mais complexos poderão ser
+encontrados nas \emph{demos} do projeto.
 
-Esta demonstração será baseada na demo \emph{Hello}, que implementa um componente carregável em contêiner (parte da infra-estrutura de execução). O código apresentado a seguir é uma versão modificada dessa demo, para que possa ser carregado manualmente, sem o uso de um contêiner.
+Esta demonstração será baseada na demo \emph{Hello}, que implementa um
+componente carregável em contêiner (parte da infra-estrutura de execução). O
+código apresentado a seguir é uma versão modificada dessa demo, para que possa
+ser carregado manualmente, sem o uso de um contêiner.
 
-O componente Hello tem quatro interfaces: IComponent, IReceptacles, IMetaInterface e apenas uma interface própria, de nome Hello. Sua IDL está disponível na Listagem~\ref{lst:helloidl}.
+O componente Hello tem quatro interfaces: IComponent, IReceptacles,
+IMetaInterface e apenas uma interface própria, de nome Hello. Sua IDL está
+disponível na Listagem~\ref{lst:helloidl}.
 
 \begin{labeledcode}[java]{helloidl}{IDL do Componente Hello}
 module scs{
@@ -175,7 +259,10 @@ module scs{
 };
 \end{labeledcode}
 
-Para implementar a faceta Hello, que conta com apenas um método, \emph{sayHello}, criamos a classe HelloServant.java, que pode ser visualizada na Listagem~\ref{lst:helloservant}. O código é bastante similar ao apresentado nas Listagens~\ref{lst:faceta} e~\ref{lst:_get_component}.
+Para implementar a faceta Hello, que conta com apenas um método,
+\emph{sayHello}, criamos a classe HelloServant.java, que pode ser visualizada
+na Listagem~\ref{lst:helloservant}. O código é bastante similar ao apresentado
+nas Listagens~\ref{lst:faceta} e~\ref{lst:_get_component}.
 
 \begin{labeledcode}[java]{helloservant}{A Faceta Hello}
 package scs.demos.helloworld.servant;
@@ -208,7 +295,10 @@ public class HelloServant extends HelloPOA {
 }
 \end{labeledcode}
 
-Além da implementação da faceta, é necessário um código de criação de componente. Esse código, que tipicamente será incluído na função \emph{main} do programa, é muito similar ao da Listagem~\ref{lst:fillDescriptions} e pode ser conferido na Listagem~\ref{lst:hellomain}.
+Além da implementação da faceta, é necessário um código de criação de
+componente. Esse código, que tipicamente será incluído na função \emph{main} do
+programa, é muito similar ao da Listagem~\ref{lst:fillDescriptions} e pode ser
+conferido na Listagem~\ref{lst:hellomain}.
 
 \begin{labeledcode}[java]{hellomain}{Criação do Componente Hello}
   public static void main(String[] args) {
@@ -238,7 +328,8 @@ Além da implementação da faceta, é necessário um código de criação de componente
       
       // criação do Construtor de Componentes e instanciação do componente
       ComponentBuilder builder = new ComponentBuilder(poa, orb);
-      ComponentContext instance = builder.newComponent(extDescs, recepDescs, cpId);
+      ComponentContext instance = builder.newComponent(extDescs, recepDescs,
+cpId);
       
       // modificação do nome a ser exibido na mensagem da faceta Hello
       HelloServant helloImpl =
@@ -270,7 +361,10 @@ Além da implementação da faceta, é necessário um código de criação de componente
 
 \end{labeledcode}
 
-Por fim, temos o código "cliente", que acessa o componente. Note que esse código pode ser CORBA puro, não é necessária a criação de um componente para acessar outro componente. Um exemplo desse tipo de código pode ser visto na Listagem~\ref{lst:helloclient}.
+Por fim, temos o código "cliente", que acessa o componente. Note que esse código
+pode ser CORBA puro, não é necessária a criação de um componente para acessar
+outro componente. Um exemplo desse tipo de código pode ser visto na
+Listagem~\ref{lst:helloclient}.
 
 \begin{labeledcode}[java]{helloclient}{Utilização do Componente Hello}
   public static void main(String[] args) {
@@ -298,7 +392,8 @@ Por fim, temos o código "cliente", que acessa o componente. Note que esse código
       // precisamos utilizar o método narrow pois estamos recebendo um
       // org.omg.CORBA.Object
       Hello iHelloFacet = HelloHelper.narrow(orb.string_to_object(iHelloIOR));
-      IComponent icFacet = IComponentHelper.narrow(iHelloFacet._get_component());
+      IComponent icFacet =
+IComponentHelper.narrow(iHelloFacet._get_component());
       
       // inicialização do componente.
       icFacet.startup();
@@ -315,21 +410,29 @@ Por fim, temos o código "cliente", que acessa o componente. Note que esse código
   }
 \end{labeledcode}
 
-Neste exemplo, a mensagem ``Hello User!'' será exibida somente na máquina servidor. O código cliente apenas terá a chamada \emph{sayHello()} completada corretamente e será finalizado sem erros.
+Neste exemplo, a mensagem ``Hello User!'' será exibida somente na máquina
+servidor. O código cliente apenas terá a chamada \emph{sayHello()} completada
+corretamente e será finalizado sem erros.
 
 \section{Notas sobre os procedimentos de compilação e execução}
 
 É importante ressaltar que o JacORB exige:
 \begin{itemize}
-  \item compilar (tanto o código servidor quanto o código cliente) utilizando o parâmetro {\bf -Xbootclasspath/p:<localização do jacorb.jar>} no compilador Java (por exemplo, no Eclipse basta colocar o JAR do JacORB com prioridade maior que o JRE Runtime).
-  \item executar (tanto o código servidor quanto o código cliente) passando alguns parâmetros na JVM, conforme mostra a Listagem~\ref{lst:jvmparameters}. Esses parâmetros garantem o uso da implementação CORBA do JacORB ao invés do uso da implementação básica provida pela Sun.
+  \item compilar (tanto o código servidor quanto o código cliente) utilizando o
+parâmetro {\bf -Xbootclasspath/p:<localização do jacorb.jar>} no compilador
+Java (por exemplo, no Eclipse basta colocar o JAR do JacORB com prioridade
+maior que o JRE Runtime).
+  \item executar (tanto o código servidor quanto o código cliente) passando
+alguns parâmetros na JVM, conforme mostra a Listagem~\ref{lst:jvmparameters}.
+Esses parâmetros garantem o uso da implementação CORBA do JacORB ao invés do
+uso da implementação básica provida pela Sun.
 \end{itemize}
 
 \begin{labeledcode}[]{jvmparameters}{Parâmetros na Sun JVM para forçar o uso do JacORB}
--Djava.endorsed.dirs=<diretório contendo o JAR do jacorb> \
-  -Djacorb.home=<diretório contendo o JAR do jacorb> \
-  -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB \
-  -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton
+-Djava.endorsed.dirs=<diretório contendo o JAR do jacorb>
+-Djacorb.home=<diretório contendo o JAR do jacorb>
+-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB
+-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton
 \end{labeledcode}
 
 \end{document}
