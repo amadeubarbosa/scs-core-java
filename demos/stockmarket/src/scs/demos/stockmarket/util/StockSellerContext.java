@@ -22,8 +22,8 @@ public class StockSellerContext extends ComponentContext {
   /**
    * Constructor.
    * 
-   * @param builder A builder associated with the ORB and POA used to create the
-   *        servants
+   * @param orb The ORB.
+   * @param poa The POA.
    * @param id This component's ComponentId
    * @throws IOException
    * @throws SCSException

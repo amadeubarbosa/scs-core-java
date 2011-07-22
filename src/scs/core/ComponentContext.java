@@ -27,8 +27,17 @@ import scs.core.exception.SCSException;
  * 
  */
 public class ComponentContext {
+  /**
+   * Name used for the IComponent facet.
+   */
   public static final String ICOMPONENT_FACET_NAME = "IComponent";
+  /**
+   * Name used for the IReceptacles facet.
+   */
   public static final String IRECEPTACLES_FACET_NAME = "IReceptacles";
+  /**
+   * Name used for the IMetaInterface facet.
+   */
   public static final String IMETAINTERFACE_FACET_NAME = "IMetaInterface";
 
   private ORB orb;
@@ -133,6 +142,14 @@ public class ComponentContext {
     facets.put(name, facet);
   }
 
+  /**
+   * Changes the servant of a facet. This method deactivates the old servant and
+   * activates the new one. The facet remains with the same name and interface.
+   * 
+   * @param name The existent facet's name.
+   * @param servant The new servant, not yet activated within the POA.
+   * @throws SCSException If an UserException is catched.
+   */
   public void updateFacet(String name, Servant servant) throws SCSException {
     Facet facet = this.facets.get(name);
     if (facet == null) {
