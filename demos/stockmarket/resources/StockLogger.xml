@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
-<component xmlns="tecgraf.scs.core">
+<scs:component xmlns:scs="tecgraf.scs.core">
   <id>
     <name>StockLogger</name>
     <version>1.0.0</version>
@@ -17,4 +17,4 @@
       <facetImpl>scs.demos.stockmarket.servant.FileExchangePrinterImpl</facetImpl>
     </facet>
   </facets>
-</component>
+</scs:component>

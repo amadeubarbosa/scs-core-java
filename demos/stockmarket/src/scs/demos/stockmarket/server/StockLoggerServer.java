@@ -1,11 +1,13 @@
 package scs.demos.stockmarket.server;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
@@ -31,6 +33,7 @@ public class StockLoggerServer {
 
   /**
    * @param args
+   * 
    * @throws InvalidName
    * @throws AdapterInactive
    * @throws WrongPolicy
@@ -43,13 +46,14 @@ public class StockLoggerServer {
    * @throws BadKind
    * @throws SecurityException
    * @throws IllegalArgumentException
-   * @throws FileNotFoundException
+   * @throws SCSException
+   * @throws ParserConfigurationException
    */
   public static void main(String[] args) throws InvalidName, AdapterInactive,
-    ServantNotActive, WrongPolicy, IllegalArgumentException, SecurityException,
-    BadKind, InstantiationException, IllegalAccessException,
-    ClassNotFoundException, InvocationTargetException, NoSuchMethodException,
-    FileNotFoundException {
+    ServantNotActive, WrongPolicy, BadKind, InstantiationException,
+    IllegalAccessException, ClassNotFoundException, InvocationTargetException,
+    NoSuchMethodException, IOException, SCSException,
+    ParserConfigurationException {
 
     // These properties are used to force JacORB instead of Sun's ORB
     // implementation.
@@ -63,14 +67,15 @@ public class StockLoggerServer {
     POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
     poa.the_POAManager().activate();
 
+    XMLComponentBuilder xmlBuilder = new XMLComponentBuilder(orb, poa);
+
     // "Metadata-only" component creation
     // The API will be responsible for creating the servants and registering
     // them with the POA.
     File is = new File("resources/" + args[0]);
-    XMLComponentBuilder xmlBuilder = new XMLComponentBuilder();
     ComponentContext context;
     try {
-      context = xmlBuilder.build(orb, poa, is);
+      context = xmlBuilder.build(is);
     }
     catch (SCSException e) {
       e.getCause().printStackTrace();
@@ -89,7 +94,7 @@ public class StockLoggerServer {
     ps.println(orb.object_to_string(context.getIComponent()));
     ps.close();
 
-    // Blocks the current thread, waiting for calls, until the ORB is 
+    // Blocks the current thread, waiting for calls, until the ORB is
     // finalized
     orb.run();
   }
