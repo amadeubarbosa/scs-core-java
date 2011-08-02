@@ -1,5 +1,7 @@
 package scs.core;
 
+import java.util.Properties;
+
 import junit.framework.Assert;
 
 import org.junit.AfterClass;
@@ -17,7 +19,11 @@ public final class IMetaInterfaceTest {
 
   @BeforeClass
   public static void beforeClass() throws UserException, SCSException {
-    ORB orb = ORB.init((String[]) null, null);
+    Properties properties = new Properties();
+    properties.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+    properties.put("org.omg.CORBA.ORBSingletonClass",
+      "org.jacorb.orb.ORBSingleton");
+    ORB orb = ORB.init((String[]) null, properties);
 
     org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
     POA poa = POAHelper.narrow(obj);
@@ -37,8 +43,9 @@ public final class IMetaInterfaceTest {
 
   @AfterClass
   public static void afterClass() {
-    context.getORB().shutdown(true);
-    context = null;
+    ORB orb = context.getORB();
+    orb.shutdown(true);
+    orb.destroy();
   }
 
   @Test

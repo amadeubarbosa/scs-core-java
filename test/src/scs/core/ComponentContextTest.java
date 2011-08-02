@@ -1,7 +1,7 @@
 package scs.core;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.Properties;
 
 import junit.framework.Assert;
 
@@ -26,17 +26,31 @@ public final class ComponentContextTest {
 
   @BeforeClass
   public static void beforeClass() throws UserException {
-    orb = ORB.init((String[]) null, null);
+    Properties properties = new Properties();
+    properties.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+    properties.put("org.omg.CORBA.ORBSingletonClass",
+      "org.jacorb.orb.ORBSingleton");
+    orb = ORB.init((String[]) null, properties);
+
     org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
     poa = POAHelper.narrow(obj);
+    poa.the_POAManager().activate();
+
+    Thread thread = new Thread(new Runnable() {
+      public void run() {
+        orb.run();
+      }
+    });
+    thread.start();
+
     componentId =
       new ComponentId("componente", (byte) 1, (byte) 0, (byte) 0, "java");
+
   }
 
   @AfterClass
   public static void afterClass() {
-    componentId = null;
-    poa.destroy(true, true);
+    orb.shutdown(true);
     orb.destroy();
   }
 

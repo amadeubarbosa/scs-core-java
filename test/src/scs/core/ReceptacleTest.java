@@ -1,6 +1,7 @@
 package scs.core;
 
 import java.util.List;
+import java.util.Properties;
 
 import junit.framework.Assert;
 
@@ -22,20 +23,36 @@ public final class ReceptacleTest {
 
   @BeforeClass
   public static void beforeClass() throws UserException, SCSException {
-    ORB orb = ORB.init((String[]) null, null);
+    Properties properties = new Properties();
+    properties.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+    properties.put("org.omg.CORBA.ORBSingletonClass",
+      "org.jacorb.orb.ORBSingleton");
+    ORB orb = ORB.init((String[]) null, properties);
+
     org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
     POA poa = POAHelper.narrow(obj);
+    poa.the_POAManager().activate();
+
     ComponentId componentId =
       new ComponentId("componente", (byte) 1, (byte) 0, (byte) 0, "java");
     context = new ComponentContext(orb, poa, componentId);
     name = "Receptáculo";
     interfaceName = IReceptaclesHelper.id();
     multiplex = false;
+
+    Thread thread = new Thread(new Runnable() {
+      public void run() {
+        context.getORB().run();
+      }
+    });
+    thread.start();
   }
 
   @AfterClass
   public static void afterClass() {
-    context = null;
+    ORB orb = context.getORB();
+    orb.shutdown(true);
+    orb.destroy();
   }
 
   @Test(expected = IllegalArgumentException.class)
