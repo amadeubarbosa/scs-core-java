@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<scs:component xmlns:scs="tecgraf.scs.core"
+           xmlns:xi="http://www.w3.org/2001/XMLSchema-instance">
+  <id>
+    <name>Test1</name>
+    <version>1.0.0</version>
+    <platformSpec>java</platformSpec>
+  </id>
+  <receptacles>
+    <receptacle>
+      <name>Receptacle1</name>
+      <interfaceName>IDL:scs/core/IMetaInterface:1.0</interfaceName>
+      <isMultiplex>false</isMultiplex>
+    </receptacle>
+    <receptacle>
+      <name>Receptacle2</name>
+      <interfaceName>IDL:scs/core/IMetaInterface:1.0</interfaceName>
+      <isMultiplex>true</isMultiplex>
+    </receptacle>
+    <receptacle>
+      <name>Receptacle3</name>
+      <interfaceName>IDL:scs/core/IComponent:1.0</interfaceName>
+      <isMultiplex>false</isMultiplex>
+    </receptacle>
+  </receptacles>
+</scs:component>

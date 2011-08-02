@@ -32,4 +32,8 @@ public class SCSException extends Exception {
   public SCSException(Throwable cause) {
     super(cause);
   }
+
+  public SCSException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

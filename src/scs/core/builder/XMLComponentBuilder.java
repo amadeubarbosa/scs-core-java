@@ -1,11 +1,16 @@
 package scs.core.builder;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -18,10 +23,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import scs.core.ComponentContext;
 import scs.core.ComponentId;
-import scs.core.builder.exception.NoComponentIdException;
+import scs.core.builder.exception.InvalidSchemaException;
+import scs.core.builder.exception.InvalidXMLException;
+import scs.core.builder.exception.SchemaNotFoundException;
+import scs.core.exception.InvalidComponentContextException;
 import scs.core.exception.InvalidServantException;
 import scs.core.exception.ReceptacleAlreadyExistsException;
 import scs.core.exception.SCSException;
@@ -31,173 +40,294 @@ import scs.core.exception.SCSException;
  * description. The XML file must comply to the official XSD.
  * 
  */
-public class XMLComponentBuilder {
+public final class XMLComponentBuilder {
+  private static final String COMPONENT_ID_ELEMENT = "id";
+  private static final String COMPONENT_ID_NAME = "name";
+  private static final String COMPONENT_ID_VERSION = "version";
+  private static final String COMPONENT_ID_PLATFORM_SPEC = "platformSpec";
 
-  private final String COMPONENT_ID_ELEMENT = "id";
-  private final String COMPONENT_ID_NAME = "name";
-  private final String COMPONENT_ID_VERSION = "version";
-  private final String COMPONENT_ID_PLATFORM_SPEC = "platformSpec";
-  private final String COMPONENT_CONTEXT_ELEMENT = "context";
-  private final String FACET_ELEMENT = "facet";
-  private final String FACET_NAME = "name";
-  private final String FACET_INTERFACE_NAME = "interfaceName";
-  private final String FACET_IMPL = "facetImpl";
-  private final String RECEPTACLE_ELEMENT = "receptacle";
-  private final String RECEPTACLE_NAME = "name";
-  private final String RECEPTACLE_INTERFACE_NAME = "interfaceName";
-  private final String RECEPTACLE_MULTIPLEX = "isMultiplex";
-  private final String VERSION_DELIMITER = "\\.";
+  private static final String COMPONENT_CONTEXT_ELEMENT = "context";
+  private static final String COMPONENT_CONTEXT_TYPE = "type";
+
+  private static final String FACETS_ELEMENT = "facets";
+  private static final String FACET_ELEMENT = "facet";
+  private static final String FACET_NAME = "name";
+  private static final String FACET_INTERFACE_NAME = "interfaceName";
+  private static final String FACET_IMPL = "facetImpl";
+
+  private static final String RECEPTACLES_ELEMENT = "receptacles";
+  private static final String RECEPTACLE_ELEMENT = "receptacle";
+  private static final String RECEPTACLE_NAME = "name";
+  private static final String RECEPTACLE_INTERFACE_NAME = "interfaceName";
+  private static final String RECEPTACLE_MULTIPLEX = "isMultiplex";
+
+  private static final String VERSION_DELIMITER = "\\.";
+
+  private ORB orb;
+  private POA poa;
+  private DocumentBuilder documentBuilder;
+  private Validator schemaValidator;
 
   /**
-   * Builds a component, based on an XML file. The component will be composed of
-   * the basic facets, plus all facets and receptacles present on the XML file.
+   * Constructs a builder that uses XML as a description format to assembly a
+   * component.
    * 
    * @param orb The orb that shall be associated to this component and its CORBA
    *        objects.
    * @param poa The poa that shall be used to activate and deactivate the
    *        servants.
-   * @param f The XML file.
+   * 
+   * @throws SchemaNotFoundException
+   * @throws InvalidSchemaException
+   * @throws ParserConfigurationException
+   */
+  public XMLComponentBuilder(ORB orb, POA poa) throws SchemaNotFoundException,
+    InvalidSchemaException, ParserConfigurationException {
+    this.orb = orb;
+    this.poa = poa;
+
+    DocumentBuilderFactory documentBuilderFactory =
+      DocumentBuilderFactory.newInstance();
+    documentBuilderFactory.setNamespaceAware(true);
+    this.documentBuilder = documentBuilderFactory.newDocumentBuilder();
+
+    SchemaFactory factory =
+      SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+    String schemaResourceName = "/ComponentDescription.xsd";
+    URL schemaURL = getClass().getResource(schemaResourceName);
+    if (schemaURL == null) {
+      throw new SchemaNotFoundException(String.format(
+        "O schema %s não foi encontrado", schemaResourceName));
+    }
+    Schema schema;
+    try {
+      schema = factory.newSchema(schemaURL);
+    }
+    catch (SAXException e) {
+      throw new InvalidSchemaException(e);
+    }
+    this.schemaValidator = schema.newValidator();
+  }
+
+  /**
+   * Builds a component, based on an XML file. The component will be composed of
+   * the basic facets, plus all facets and receptacles present on the XML file.
+   * 
+   * @param input The XML file.
+   * 
    * @return A fully assembled component, with working facets, as described by
    *         the XML file.
    * @throws SCSException If any error occurs. The exception will contain the
    *         more specific exception.
    */
-  public ComponentContext build(ORB orb, POA poa, File f) throws SCSException {
-    ComponentContext context = null;
+  public ComponentContext build(File file) throws IOException, SCSException {
+    Document doc;
     try {
-      DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-      dbFactory.setNamespaceAware(true);
-      DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-      Document doc = dBuilder.parse(f);
-
-      SchemaFactory factory =
-        SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-      // obtains xsd file from classpath
-      Schema schema =
-        factory.newSchema(new File(getClass().getClassLoader().getResource(
-          "ComponentDescription.xsd").toURI()));
-      Validator validator = schema.newValidator();
-      validator.validate(new DOMSource(doc));
-
-      doc.getDocumentElement().normalize();
-
-      ComponentId id = getComponentId(doc);
-
-      Class<?> contextClass = getComponentContextClass(doc);
-      if (contextClass != null) {
-        context =
-          (ComponentContext) contextClass.getConstructor(ORB.class, POA.class,
-            ComponentId.class).newInstance(orb, poa, id);
-      }
-      else {
-        context = new ComponentContext(orb, poa, id);
-      }
-
-      readAndPutFacets(doc, context);
-      readAndPutReceptacles(doc, context);
+      doc = this.documentBuilder.parse(file);
     }
-    catch (Exception e) {
-      throw new SCSException(e);
+    catch (SAXException e) {
+      throw new InvalidXMLException(e);
     }
-    return context;
+    return this.build(doc);
   }
 
   /**
-   * Obtains the value from a tag.
+   * Builds a component, based on an XML file. The component will be composed of
+   * the basic facets, plus all facets and receptacles present on the XML file.
    * 
-   * @param tag The tag to get the value from.
-   * @param element The Element that contains the specified tag.
+   * @param inputStream .
+   * 
+   * @return A fully assembled component, with working facets, as described by
+   *         the XML file.
+   * 
+   * @throws IOException
+   * @throws SCSException If any error occurs. The exception will contain the
+   *         more specific exception.
    */
-  private String getTagValue(String tag, Element element) {
-    NodeList list = element.getElementsByTagName(tag).item(0).getChildNodes();
-    Node value = list.item(0);
-    return value.getNodeValue();
+  public ComponentContext build(InputStream input) throws IOException,
+    SCSException {
+    Document doc;
+    try {
+      doc = this.documentBuilder.parse(input);
+    }
+    catch (SAXException e) {
+      throw new InvalidXMLException(e);
+    }
+    return this.build(doc);
+  }
+
+  private ComponentContext build(Document doc) throws IOException, SCSException {
+    try {
+      this.schemaValidator.validate(new DOMSource(doc));
+    }
+    catch (SAXException e) {
+      throw new InvalidXMLException(e);
+    }
+    doc.getDocumentElement().normalize();
+
+    Element componentElement = (Element) doc.getChildNodes().item(0);
+    ComponentId id = getComponentId(componentElement);
+    ComponentContext context = getComponentContext(componentElement, id);
+    readAndPutFacets(componentElement, context);
+    readAndPutReceptacles(componentElement, context);
+
+    return context;
+  }
+
+  private static Element getChildByName(Element parent, String name) {
+    NodeList nodes = parent.getElementsByTagName(name);
+    if (nodes.getLength() == 0) {
+      return null;
+    }
+    return (Element) nodes.item(0);
+  }
+
+  private static Element[] getChildrenByName(Element parent, String name) {
+    NodeList nodes = parent.getElementsByTagName(name);
+    Element[] children = new Element[nodes.getLength()];
+    for (int i = 0; i < children.length; i++) {
+      children[i] = (Element) nodes.item(i);
+    }
+    return children;
+  }
+
+  private static String getChildValueByName(Element parent, String name) {
+    NodeList nodes = parent.getElementsByTagName(name);
+    if (nodes.getLength() == 0) {
+      return null;
+    }
+    Node node = nodes.item(0);
+    return node.getFirstChild().getNodeValue();
   }
 
   /**
    * Obtains the componentId from the document.
-   * 
-   * @param doc The document with the component specification.
    */
-  private ComponentId getComponentId(Document doc)
-    throws NoComponentIdException {
-    ComponentId id = new ComponentId();
-
-    boolean filled = false;
-    NodeList list = doc.getElementsByTagName(COMPONENT_ID_ELEMENT);
-    for (int i = 0; i < list.getLength(); i++) {
-      Node node = list.item(i);
-      if (node.getNodeType() == Node.ELEMENT_NODE) {
-        Element element = (Element) node;
-        id.name = getTagValue(COMPONENT_ID_NAME, element);
-        String version = getTagValue(COMPONENT_ID_VERSION, element);
-        String[] versions = version.split(VERSION_DELIMITER);
-        id.major_version = Byte.parseByte(versions[0]);
-        id.minor_version = Byte.parseByte(versions[1]);
-        id.patch_version = Byte.parseByte(versions[2]);
-        id.platform_spec = getTagValue(COMPONENT_ID_PLATFORM_SPEC, element);
-        filled = true;
-      }
-    }
-    if (!filled) {
-      throw new NoComponentIdException(
-        "Não foi definido nenhum identificador para o componente");
-    }
-    return id;
+  private static ComponentId getComponentId(Element componentElement) {
+    Element componentIdElement =
+      getChildByName(componentElement, COMPONENT_ID_ELEMENT);
+    String name = getChildValueByName(componentIdElement, COMPONENT_ID_NAME);
+    String version =
+      getChildValueByName(componentIdElement, COMPONENT_ID_VERSION);
+    String[] versions = version.split(VERSION_DELIMITER);
+    byte majorVersion = Byte.parseByte(versions[0]);
+    byte minorVersion = Byte.parseByte(versions[1]);
+    byte patchVersion = Byte.parseByte(versions[2]);
+    String platformSpec =
+      getChildValueByName(componentIdElement, COMPONENT_ID_PLATFORM_SPEC);
+    return new ComponentId(name, majorVersion, minorVersion, patchVersion,
+      platformSpec);
   }
 
-  /**
-   * Obtains the component context class from the document and loads the class.
-   * 
-   * @param doc The document with the component specification.
-   * @throws ClassNotFoundException If the specified class cannot be found in
-   *         the ContextClassLoader from the current thread.
-   */
-  private Class<?> getComponentContextClass(Document doc)
-    throws ClassNotFoundException {
-    try {
-      String className = null;
-      Element element = (Element) doc.getFirstChild();
-      className = getTagValue(COMPONENT_CONTEXT_ELEMENT, element);
-      return Class.forName(className, true, Thread.currentThread()
-        .getContextClassLoader());
+  private ComponentContext getComponentContext(Element componentElement,
+    ComponentId id) throws SCSException {
+    Element componentContextElement =
+      getChildByName(componentElement, COMPONENT_CONTEXT_ELEMENT);
+    if (componentContextElement == null) {
+      return new ComponentContext(this.orb, this.poa, id);
     }
-    catch (Exception e) {
-      return null;
+
+    String type =
+      getChildValueByName(componentContextElement, COMPONENT_CONTEXT_TYPE);
+    Class<ComponentContext> componentContextClass;
+    try {
+      componentContextClass = (Class<ComponentContext>) Class.forName(type);
+    }
+    catch (ClassNotFoundException e) {
+      throw new InvalidComponentContextException(String.format(
+        "A classe %s, do contexto do componente, não foi encontrada", type));
+    }
+    catch (ClassCastException e) {
+      throw new InvalidComponentContextException(String.format(
+        "A classe informada como contexto do componente não é do tipo %s",
+        ComponentContext.class.getCanonicalName()));
+    }
+
+    Constructor<ComponentContext> componentContextConstructor;
+    try {
+      componentContextConstructor =
+        componentContextClass.getConstructor(ORB.class, POA.class,
+          ComponentId.class);
+    }
+    catch (NoSuchMethodException e) {
+      throw new InvalidComponentContextException(
+        String
+          .format("A classe informada como contexto do componente não possui construtor que receba um ORB, um POA e um identificador de componente"));
+    }
+
+    try {
+      return componentContextConstructor.newInstance(orb, poa, id);
+    }
+    catch (InstantiationException e) {
+      throw new SCSException(e);
+    }
+    catch (IllegalAccessException e) {
+      throw new SCSException(e);
+    }
+    catch (InvocationTargetException e) {
+      throw new SCSException(e);
     }
   }
 
   /**
    * Reads and puts all of the document's specified facets on the component.
    * 
-   * @param doc The document with the component specification.
    * @param context The component.
    */
-  private void readAndPutFacets(Document doc, ComponentContext context)
-    throws ClassNotFoundException, IllegalArgumentException, SecurityException,
-    InstantiationException, IllegalAccessException, InvocationTargetException,
-    NoSuchMethodException, SCSException {
-    NodeList list = doc.getElementsByTagName(FACET_ELEMENT);
-    for (int i = 0; i < list.getLength(); i++) {
-      Node node = list.item(i);
-      if (node.getNodeType() == Node.ELEMENT_NODE) {
-        Element element = (Element) node;
-        String name = getTagValue(FACET_NAME, element);
-        String interfaceName = getTagValue(FACET_INTERFACE_NAME, element);
-        String facetImpl = getTagValue(FACET_IMPL, element);
-        Class<?> c =
-          Class.forName(facetImpl, true, Thread.currentThread()
-            .getContextClassLoader());
-        Object servant =
-          c.getConstructor(ComponentContext.class).newInstance(context);
-        if (servant instanceof Servant) {
-          context.addFacet(name, interfaceName, (Servant) servant);
-        }
-        else {
-          throw new InvalidServantException(String.format(
-            "O objeto informado como servant da faceta %s não é válido", name));
-        }
+  private static void readAndPutFacets(Element componentElement,
+    ComponentContext context) throws SCSException {
+    Element facetsElement = getChildByName(componentElement, FACETS_ELEMENT);
+    if (facetsElement == null) {
+      return;
+    }
+    Element[] facetElementArray =
+      getChildrenByName(facetsElement, FACET_ELEMENT);
+
+    for (int i = 0; i < facetElementArray.length; i++) {
+      String name = getChildValueByName(facetElementArray[i], FACET_NAME);
+      String interfaceName =
+        getChildValueByName(facetElementArray[i], FACET_INTERFACE_NAME);
+      String facetImpl = getChildValueByName(facetElementArray[i], FACET_IMPL);
+
+      Class<Servant> servantClass;
+      try {
+        servantClass = (Class<Servant>) Class.forName(facetImpl);
       }
+      catch (ClassNotFoundException e) {
+        throw new InvalidServantException(String.format(
+          "A classe %s, servant da faceta %s, não foi encontrada", facetImpl,
+          name));
+      }
+      catch (ClassCastException e) {
+        throw new InvalidServantException(String.format(
+          "A classe informada como servant da faceta %s não é do tipo %s",
+          name, Servant.class.getCanonicalName()));
+      }
+      Constructor<Servant> constructor;
+      try {
+        constructor = servantClass.getConstructor(ComponentContext.class);
+      }
+      catch (NoSuchMethodException e) {
+        throw new InvalidServantException(
+          String
+            .format(
+              "A classe informada como servant da faceta %s não possui um construtor que receba um contexto",
+              name));
+      }
+      Servant servant;
+      try {
+        servant = constructor.newInstance(context);
+      }
+      catch (InstantiationException e) {
+        throw new SCSException(e);
+      }
+      catch (IllegalAccessException e) {
+        throw new SCSException(e);
+      }
+      catch (InvocationTargetException e) {
+        throw new SCSException(e);
+      }
+      context.addFacet(name, interfaceName, servant);
     }
   }
 
@@ -205,23 +335,31 @@ public class XMLComponentBuilder {
    * Reads and puts all of the document's specified receptacles on the
    * component.
    * 
-   * @param doc The document with the component specification.
    * @param context The component.
+   * 
    * @throws ReceptacleAlreadyExistsException
    */
-  private void readAndPutReceptacles(Document doc, ComponentContext context)
-    throws ReceptacleAlreadyExistsException {
-    NodeList list = doc.getElementsByTagName(RECEPTACLE_ELEMENT);
-    for (int i = 0; i < list.getLength(); i++) {
-      Node node = list.item(i);
-      if (node.getNodeType() == Node.ELEMENT_NODE) {
-        Element element = (Element) node;
-        String name = getTagValue(RECEPTACLE_NAME, element);
-        String interfaceName = getTagValue(RECEPTACLE_INTERFACE_NAME, element);
-        boolean isMultiplex =
-          Boolean.parseBoolean(getTagValue(RECEPTACLE_MULTIPLEX, element));
-        context.addReceptacle(name, interfaceName, isMultiplex);
-      }
+  private static void readAndPutReceptacles(Element componentElement,
+    ComponentContext context) throws ReceptacleAlreadyExistsException {
+    Element receptaclesElement =
+      getChildByName(componentElement, RECEPTACLES_ELEMENT);
+    if (receptaclesElement == null) {
+      return;
+    }
+    Element[] receptacleElementArray =
+      getChildrenByName(receptaclesElement, RECEPTACLE_ELEMENT);
+
+    for (int i = 0; i < receptacleElementArray.length; i++) {
+      String name =
+        getChildValueByName(receptacleElementArray[i], RECEPTACLE_NAME);
+      String interfaceName =
+        getChildValueByName(receptacleElementArray[i],
+          RECEPTACLE_INTERFACE_NAME);
+      boolean isMultiplex =
+        Boolean.parseBoolean(getChildValueByName(receptacleElementArray[i],
+          RECEPTACLE_MULTIPLEX));
+
+      context.addReceptacle(name, interfaceName, isMultiplex);
     }
   }
 }
