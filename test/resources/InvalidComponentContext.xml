@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<scs:component xmlns:scs="tecgraf.scs.core"
+           xmlns:xi="http://www.w3.org/2001/XMLSchema-instance">
+  <id>
+    <name>Test7</name>
+    <version>1.0.0</version>
+    <platformSpec>java</platformSpec>
+  </id>
+  <context>
+    <type>scs.core.InvalidComponentContext</type>
+  </context>
+</scs:component>
