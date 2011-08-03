@@ -5,15 +5,15 @@
   <groupId>tecgraf.scs</groupId>
   <artifactId>scs-demos-helloworld</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.1-SNAPSHOT</version>
+  <version>1.2.1_0</version>
 
   <name>SCS Demo Helloworld</name>
-  <url>https://subversion.tecgraf.puc-rio.br/engdist/scs/core/java/branches/SCS_CORE_JAVA_v1_02_01_2011_07_28/demos/helloworld</url>
+  <url>https://subversion.tecgraf.puc-rio.br/engdist/scs/core/java/tags/SCS_CORE_JAVA_v1_02_01_00_2011_08_03/demos/helloworld</url>
   
   <properties>
     <java.version>1.5</java.version>
-    <scs.version>1.2.1-SNAPSHOT</scs.version>
-    <scsidl.version>1.2-SNAPSHOT</scsidl.version>
+    <scs.version>1.2.1_0</scs.version>
+    <scsidl.version>1.2.1</scsidl.version>
     <jacorb.version>2.3.0</jacorb.version>
     <source.encoding>ISO-8859-1</source.encoding>
   </properties>
