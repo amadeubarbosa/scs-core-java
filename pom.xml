@@ -5,12 +5,13 @@
   <groupId>tecgraf.scs</groupId>
   <artifactId>scs-core</artifactId>
   <packaging>jar</packaging>
-  <version>1.3-SNAPSHOT</version>
+  <version>1.3.0-SNAPSHOT</version>
 
   <name>SCS Core</name>
   <url>https://subversion.tecgraf.puc-rio.br/engdist/scs/core/java/trunk</url>
   
   <properties>
+    <idl.version>1.3-SNAPSHOT</idl.version>
     <java.version>1.5</java.version>
     <junit.version>4.6</junit.version>
     <jacorb.version>2.3.0</jacorb.version>
@@ -58,7 +59,7 @@
     <dependency>
       <groupId>tecgraf.scs</groupId>
       <artifactId>scs-idl-jacorb</artifactId>
-      <version>${project.version}</version>
+      <version>${idl.version}</version>
     </dependency>
 
     <dependency>

@@ -16,8 +16,8 @@ $SCS_HOME/avalon-framework-4.1.5.jar:\
 $SCS_HOME/jacorb-2.3.0.jar:\
 $SCS_HOME/logkit-1.2.jar:\
 $SCS_HOME/scs-idl-jacorb-1.3-SNAPSHOT.jar:\
-$SCS_HOME/scs-core-1.3-SNAPSHOT.jar:\
-$SCS_HOME/scs-demos-stockmarket-1.3-SNAPSHOT.jar"
+$SCS_HOME/scs-core-1.3.0-SNAPSHOT.jar:\
+$SCS_HOME/scs-demos-stockmarket-1.3.0-SNAPSHOT.jar"
 
 echo $CLASSPATH
 
