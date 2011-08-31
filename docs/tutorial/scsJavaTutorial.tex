@@ -24,14 +24,14 @@
 % Inicio do documento
 % ===================
 
-\begin{document} 
+\begin{document}
 
 \title{Tutorial Básico do SDK Java do SCS}
 \author{Tecgraf \\
         Pontifícia Universidade Católica do Rio de Janeiro (PUC-Rio)\\
         scs-users@tecgraf.puc-rio.br}
 
-\date{}
+\date{2011-08-31}
 \maketitle
 
 
@@ -40,7 +40,7 @@
 \section{Introdução}
 
 Este documento é um tutorial básico sobre a criação de componentes no modelo
-SCS v1.3, utilizando a versão Java da implementação padrão. Não serão
+SCS v1.2, utilizando a versão Java 1.2.1\_0. Não serão
 encontradas aqui explicações sobre o modelo, as quais encontram-se em
 documentos específicos. Também não será abordado o uso de serviços específicos
 desenvolvidos para o auxílio ao uso do modelo, como a infra-estrutura de
@@ -84,14 +84,14 @@ O identificador do componente é uma estrutura definida em IDL (scs.idl) chamada
 identificador de componente conta com os seguintes campos:
 
 \begin{itemize}
-	\item \code{name}: Nome desejado para o componente.
-	\item \code{major\_version}: Número que define a versão principal do
+  \item \code{name}: Nome desejado para o componente.
+  \item \code{major\_version}: Número que define a versão principal do
 componente.
-	\item \code{minor\_version}: Número que define a versão secundária do
+  \item \code{minor\_version}: Número que define a versão secundária do
 componente, possivelmente relacionado a uma sub-versão da versão principal.
-	\item \code{patch\_version}: Número que define a versão de revisão do
+  \item \code{patch\_version}: Número que define a versão de revisão do
 componente.
-	\item \code{platform\_spec}: \emph{String} contendo quaisquer especificações de
+  \item \code{platform\_spec}: \emph{String} contendo quaisquer especificações de
 plataforma necessárias ao funcionamento do componente.
 \end{itemize}
 
@@ -198,7 +198,7 @@ Receptáculos representam dependências de interfaces (facetas), e devem ser descr
 Eles são manipulados pela faceta básica \emph{IReceptacles}.
 Se a aplicação desejar manipular seus receptáculos de forma diferente, precisará substituir a implementação da faceta \emph{IReceptacles} através do método \emph{updateFacet} do contexto, como descrito na Seção \ref{criacao_facetas}.
 
-A criação de receptáculos é muito parecida com a de facetas, descrita na Seção \ref{facetas}.
+A criação de receptáculos é muito parecida com a de facetas, descrita na Seção \ref{criacao_facetas}.
 Para adicionar um receptáculo a um componente, o contexto fornece o método \emph{addReceptacle}, que espera como parâmetros o nome, a interface esperada e um \emph{boolean} indicando se o receptáculo deve aceitar múltiplas conexões ou somente uma.
 O uso desse método pode ser visto no Código~\ref{lst:addReceptacle}.
 
@@ -260,7 +260,7 @@ public class HelloServant extends HelloPOA {
 \end{labeledcode}
 
 \begin{labeledcode}[java]{hellomain}{Criação do Componente Hello}
-  
+
 public static void main(String[] args) {
   try {
     Properties props = new Properties();
@@ -279,7 +279,7 @@ public static void main(String[] args) {
     HelloServant helloImpl = new HelloServant();
     helloImpl.setName("User");
     context.addFacet("Hello", HelloHelper.id(), helloImpl);
-    
+
     orb.run();
   }
   catch (Exception e) {
