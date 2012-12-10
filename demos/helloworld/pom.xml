@@ -5,16 +5,15 @@
   <groupId>tecgraf.scs</groupId>
   <artifactId>scs-demos-helloworld</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.1-SNAPSHOT</version>
+  <version>1.2.1.1</version>
 
   <name>SCS Demo Helloworld</name>
-  <url>https://subversion.tecgraf.puc-rio.br/engdist/scs/core/java/branches/SCS_CORE_JAVA_v1_02_01_2011_07_28/demos/helloworld</url>
+  <url>https://subversion.tecgraf.puc-rio.br/engdist/scs/core/java/tags/SCS_CORE_JAVA_v1_02_01_01_2012_12_10/demos/helloworld</url>
   
   <properties>
-    <java.version>1.5</java.version>
+    <java.version>1.6</java.version>
     <scs.version>1.2.1-SNAPSHOT</scs.version>
-    <scsidl.version>1.2-SNAPSHOT</scsidl.version>
-    <jacorb.version>2.3.0</jacorb.version>
+    <jacorb.version>3.1</jacorb.version>
     <source.encoding>ISO-8859-1</source.encoding>
   </properties>
 
@@ -33,13 +32,6 @@
         </configuration>
       </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <configuration>
-          <encoding>${source.encoding}</encoding>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>idlj-maven-plugin</artifactId>
@@ -66,20 +58,23 @@
           <compiler>jacorb</compiler>
           <sourceDirectory>idl</sourceDirectory>
           <includeDirs>
-            <includeDir>${env.IDL_PATH}</includeDir>
+            <includeDir>${scs.idlpath}</includeDir>
           </includeDirs>
        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <encoding>${source.encoding}</encoding>
+        </configuration>
       </plugin>
     </plugins>
   </build>
 
   <dependencies>
-    <dependency>
-      <groupId>tecgraf.scs</groupId>
-      <artifactId>scs-idl-jacorb</artifactId>
-      <version>${scsidl.version}</version>
-    </dependency>
-
     <dependency>
       <groupId>tecgraf.scs</groupId>
       <artifactId>scs-core</artifactId>
