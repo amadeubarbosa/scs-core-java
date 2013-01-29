@@ -20,7 +20,8 @@ In order to execute without the Maven integration, you must:
   2) copy all dependencies into it:
   mvn dependency:copy-dependencies -DincludeScope=runtime \
     -DoutputDirectory=/tmp/install
-  cp target/scs-demos-helloworld-1.3.0-SNAPSHOT.jar /tmp/install
+  cp target/scs-demos-helloworld-1.3-SNAPSHOT
+.jar /tmp/install
   
   3) now the RUNNING step could be successfully executed (see bin/rundemo to
   understand how to change the SCS installation directory)
