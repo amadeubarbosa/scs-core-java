@@ -5,7 +5,7 @@
   <groupId>tecgraf.scs</groupId>
   <artifactId>scs-demos-helloworld</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.1.1</version>
+  <version>1.2.1-SNAPSHOT</version>
 
   <name>SCS Demo Helloworld</name>
   <url>https://subversion.tecgraf.puc-rio.br/engdist/scs/core/java/tags/SCS_CORE_JAVA_v1_02_01_01_2012_12_10/demos/helloworld</url>
