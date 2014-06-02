@@ -67,7 +67,7 @@
           <source>${java.version}</source>
           <target>${java.version}</target>
           <encoding>${source.encoding}</encoding>
-          <compilerArgument>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb/${jacorb.version}/jacorb-${jacorb.version}.jar</compilerArgument>
+          <compilerArgument>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb/${jacorb.version}/jacorb-${jacorb.version}.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${jacorb.version}/jacorb-omgapi-${jacorb.version}.jar</compilerArgument>
         </configuration>
       </plugin>
 
@@ -113,6 +113,12 @@
     <dependency>
       <groupId>org.jacorb</groupId>
       <artifactId>jacorb</artifactId>
+      <version>${jacorb.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jacorb</groupId>
+      <artifactId>jacorb-omgapi</artifactId>
       <version>${jacorb.version}</version>
     </dependency>
 
