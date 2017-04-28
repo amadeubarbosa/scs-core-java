@@ -3,7 +3,6 @@ package scs.core;
 import org.omg.CORBA.UserException;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
-
 import scs.core.exception.SCSException;
 
 /**
@@ -30,12 +29,23 @@ public final class Facet {
    * The Servant instance that implements the interface.
    */
   private Servant servant;
+
+  /**
+   * The object ID produced by POA or specified by user on object activation process.
+   */
+  private boolean userIdAssignmentPolicy;
+
   /**
    * The CORBA object.
    */
   private org.omg.CORBA.Object reference;
 
+
   Facet(POA poa, String name, String interfaceName, Servant servant)
+          throws SCSException {
+    this(poa, name, interfaceName, servant, false);
+  }
+  Facet(POA poa, String name, String interfaceName, Servant servant, boolean userIdAssignmentPolicy)
     throws SCSException {
     if (poa == null) {
       throw new IllegalArgumentException("The poa can't be null");
@@ -50,6 +60,7 @@ public final class Facet {
     this.poa = poa;
     this.name = name;
     this.interfaceName = interfaceName;
+    this.userIdAssignmentPolicy = userIdAssignmentPolicy;
     this.setServant(servant);
   }
 
@@ -122,7 +133,14 @@ public final class Facet {
 
   private void activate() throws SCSException {
     try {
-      this.reference = this.poa.servant_to_reference(this.servant);
+      // POA policies sanit check
+      if (this.userIdAssignmentPolicy) {
+        this.poa.activate_object_with_id(this.name.getBytes(), this.servant);
+        this.reference = this.poa.id_to_reference(this.name.getBytes());
+      } else {
+        // implicit activation
+        this.reference = this.poa.servant_to_reference(this.servant);
+      }
     }
     catch (UserException e) {
       throw new SCSException(e);

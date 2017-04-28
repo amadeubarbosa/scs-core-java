@@ -1,19 +1,18 @@
 package scs.core;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
-
 import scs.core.exception.FacetAlreadyExists;
 import scs.core.exception.FacetDoesNotExist;
 import scs.core.exception.ReceptacleAlreadyExistsException;
 import scs.core.exception.ReceptacleDoesNotExistException;
 import scs.core.exception.SCSException;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class is the local representation of a SCS component. Its concept
@@ -45,6 +44,7 @@ public class ComponentContext {
   private ComponentId componentId;
   private Map<String, Facet> facets;
   private Map<String, Receptacle> receptacles;
+  private boolean userIdAssignmentPolicy;
 
   /**
    * Counter used to generate connection id's. Connection id's are valid per
@@ -77,6 +77,32 @@ public class ComponentContext {
    *         another, more specific exception.
    */
   public ComponentContext(ORB orb, POA poa, ComponentId id) throws SCSException {
+    this(orb, poa, false, id);
+  }
+
+  /**
+   * Primary constructor. The returned component instance will always have the
+   * three basic facets (IComponent, IReceptacles, IMetaInterface) instantiated.
+   * If the user wishes to use his own implementation of one of these facets,
+   * it's possible to replace them via the addFacet method. Other facets and
+   * receptacles can also be added.
+   *
+   * The returned instance of this class is considered a new SCS component
+   * instance.
+   *
+   * @param orb The ORB to be used when creating this component instance's
+   *        facets.
+   * @param poa The POA to register this component instance's facets.
+   * @param userIdAssignmentPolicy If true the SCS will assume you're
+   *        using a persistent POA policy and will try to activate the facet
+   *        objects using the same facet name string as object id. Default is false.
+   * @param id The type of this component.
+   *
+   * @throws SCSException If any error occurs. The exception shall contain
+   *         another, more specific exception.
+   */
+  public ComponentContext(ORB orb, POA poa, boolean userIdAssignmentPolicy, ComponentId id)
+    throws SCSException {
     if (orb == null) {
       throw new IllegalArgumentException("The ORB can't be null");
     }
@@ -89,10 +115,11 @@ public class ComponentContext {
 
     this.orb = orb;
     this.poa = poa;
-    componentId = id;
+    this.componentId = id;
 
-    facets = new HashMap<String, Facet>();
-    receptacles = new HashMap<String, Receptacle>();
+    this.facets = new HashMap<String, Facet>();
+    this.receptacles = new HashMap<String, Receptacle>();
+    this.userIdAssignmentPolicy = userIdAssignmentPolicy;
 
     addBasicFacets();
   }
@@ -138,7 +165,7 @@ public class ComponentContext {
     if (facet != null) {
       throw new FacetAlreadyExists(name);
     }
-    facet = new Facet(this.poa, name, interfaceName, servant);
+    facet = new Facet(this.poa, name, interfaceName, servant, this.userIdAssignmentPolicy);
     facets.put(name, facet);
   }
 
