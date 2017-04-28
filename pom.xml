@@ -2,44 +2,46 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>tecgraf.scs</groupId>
+  <groupId>br.puc-rio.tecgraf.scs</groupId>
   <artifactId>scs-core</artifactId>
   <packaging>jar</packaging>
   <version>1.2.1-SNAPSHOT</version>
 
   <name>SCS Core</name>
-  <url>https://subversion.tecgraf.puc-rio.br/engdist/scs/core/java/tags/SCS_CORE_JAVA_v1_02_01_01_2012_12_10</url>
+  <url>http://www.tecgraf.puc-rio.br/scs</url>
   
   <properties>
     <java.version>1.6</java.version>
     <junit.version>4.6</junit.version>
-    <jacorb.version>3.5-SNAPSHOT</jacorb.version>
+    <jacorb.version>3.8</jacorb.version>
     <source.encoding>ISO-8859-1</source.encoding>
+    <nexus.url>http://maven.tecgraf.puc-rio.br:8081/nexus/content</nexus.url>
   </properties>
+
+  <scm>
+    <connection>scm:git:https://git.tecgraf.puc-rio.br/scs/scs-core-java.git</connection>
+    <developerConnection>scm:git:https://git.tecgraf.puc-rio.br/scs/scs-core-java.git</developerConnection>
+    <url>https://git.tecgraf.puc-rio.br/openbus/scs-core-java</url>
+    <tag>HEAD</tag>
+  </scm>
 
   <distributionManagement>
     <repository>
-      <id>tecgraf-releases</id>
+      <id>tecgraf-pub-releases</id>
       <name>Releases do Tecgraf</name>
-      <url>http://nexus.tecgraf.puc-rio.br:8081/nexus/content/repositories/releases</url>
+      <url>${nexus.url}/repositories/releases</url>
     </repository>
     <snapshotRepository>
-      <id>tecgraf-snapshots</id>
+      <id>tecgraf-pub-snapshots</id>
       <name>Snapshots do Tecgraf</name>
-      <url>http://nexus.tecgraf.puc-rio.br:8081/nexus/content/repositories/snapshots</url>
+      <url>${nexus.url}/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
 
   <repositories>
     <repository>
-      <id>tecgraf-releases</id>
-      <name>Releases do Tecgraf</name>
-      <url>http://nexus.tecgraf.puc-rio.br:8081/nexus/content/repositories/releases</url>
-    </repository>
-    <repository>
-      <id>tecgraf-snapshots</id>
-      <name>Snapshots do Tecgraf</name>
-      <url>http://nexus.tecgraf.puc-rio.br:8081/nexus/content/repositories/snapshots</url>
+      <id>nexus</id>
+      <url>${nexus.url}/groups/public</url>
     </repository>
   </repositories>
 
@@ -67,14 +69,14 @@
           <source>${java.version}</source>
           <target>${java.version}</target>
           <encoding>${source.encoding}</encoding>
-          <compilerArgument>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb/${jacorb.version}/jacorb-${jacorb.version}.jar:${settings.localRepository}/org/jacorb/jacorb-omgapi/${jacorb.version}/jacorb-omgapi-${jacorb.version}.jar</compilerArgument>
+          <compilerArgument>-Xbootclasspath/p:${settings.localRepository}/org/jacorb/jacorb-omgapi/${jacorb.version}/jacorb-omgapi-${jacorb.version}.jar</compilerArgument>
         </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>idlj-maven-plugin</artifactId>
-        <version>1.1</version>
+        <version>1.2.2</version>
         <configuration>
           <compiler>jacorb</compiler>
           <sourceDirectory>${scs.idlpath}</sourceDirectory>
@@ -113,12 +115,6 @@
     <dependency>
       <groupId>org.jacorb</groupId>
       <artifactId>jacorb</artifactId>
-      <version>${jacorb.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jacorb</groupId>
-      <artifactId>jacorb-omgapi</artifactId>
       <version>${jacorb.version}</version>
     </dependency>
 
