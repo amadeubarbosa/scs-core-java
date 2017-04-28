@@ -5,7 +5,7 @@
   <groupId>br.puc-rio.tecgraf.scs</groupId>
   <artifactId>scs-core</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.1-SNAPSHOT</version>
+  <version>1.2.2.0-SNAPSHOT</version>
 
   <name>SCS Core</name>
   <url>http://www.tecgraf.puc-rio.br/scs</url>
